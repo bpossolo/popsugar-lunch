@@ -102,13 +102,13 @@ public class LunchManager {
 			
 			StringBuilder body = new StringBuilder()
 				.append(getCurrentWeek())
-				.append("\n\nYour upcoming Lunch for Four consists of\n\n");
+				.append("\n\nYour upcoming Lunch for Four consists of:\n\n");
 			
 			ArrayList<String> recipients = new ArrayList<>();
 			
 			for( User user : group.getUsers() ){
 				recipients.add(user.getEmail());
-				body.append(user.getName());
+				body.append(" - ").append(user.getName());
 				if( group.isCoordinatedBy(user) )
 					body.append(" (please coordinate the exact location/date)");
 				body.append('\n');
@@ -116,7 +116,7 @@ public class LunchManager {
 			
 			Message msg = new Message();
 			msg.setSender("PopSugar Lunch for Four <noreply@popsugar-lunch.appspotmail.com>");
-			msg.setTo(recipients);
+			msg.setBcc(recipients);
 			msg.setSubject(subject);
 			msg.setTextBody(body.toString());
 			try{
