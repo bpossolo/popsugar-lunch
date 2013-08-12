@@ -83,6 +83,7 @@ public class HomeView extends Composite {
 	@UiHandler("signup")
 	void onClickSignup(ClickEvent e){
 		signup.setEnabled(false);
+		successMsg.setVisible(false);
 		String userName = name.getValue();
 		String userEmail = email.getValue();
 		if( userName.trim().isEmpty() || userEmail.trim().isEmpty() ){

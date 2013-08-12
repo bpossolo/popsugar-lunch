@@ -1,12 +1,9 @@
 package com.popsugar.lunch.server;
 
-import java.util.ArrayList;
-
 import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import com.popsugar.lunch.ui.client.LunchGroup;
 import com.popsugar.lunch.ui.client.LunchGroupData;
 import com.popsugar.lunch.ui.client.LunchRpcService;
 import com.popsugar.lunch.ui.client.User;
@@ -39,9 +36,7 @@ public class LunchRpcServiceImpl extends RemoteServiceServlet implements LunchRp
 	public LunchGroupData getLunchGroups() {
 		EntityManager em = EMF.get().createEntityManager();
 		try{
-			ArrayList<LunchGroup> groups = lunchManager.getLunchGroups(em);
-			String week = lunchManager.getCurrentWeek();
-			return new LunchGroupData(groups, week);
+			return lunchManager.getLunchGroupData(em);
 		}
 		finally{
 			em.close();

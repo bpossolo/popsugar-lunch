@@ -53,16 +53,18 @@ public class LunchManagerTest {
 		persistInTx(tiers);
 		
 		LunchGroup group1 = new LunchGroup();
-		group1.addUser(benji);
+		group1.addUserAndKey(benji);
 		
 		LunchGroup group2 = new LunchGroup();
-		group2.addUser(tiers);
+		group2.addUserAndKey(tiers);
 		
 		List<LunchGroup> groups = Arrays.asList(group1, group2);
 		
 		manager.persistLunchGroupsInTx(em, groups);
 		
-		groups = manager.getLunchGroups(em);
+		em.getTransaction().begin();
+		groups = manager.getLunchGroupsWithUsers(em);
+		em.getTransaction().commit();
 		
 		assertEquals(2, groups.size());
 		assertEquals(benji.getKey(), groups.get(0).getUsers().get(0).getKey());
@@ -70,21 +72,44 @@ public class LunchManagerTest {
 		
 		manager.deleteLunchGroupsInTx(em);
 		
-		groups = manager.getLunchGroups(em);
+		groups = manager.getLunchGroupsWithUsers(em);
 		assertTrue(groups.isEmpty());
+	}
+	
+	@Test
+	public void testDeleteLunchGroupsInTx(){
+		
+		LunchGroup group1 = new LunchGroup();
+		LunchGroup group2 = new LunchGroup();
+		
+		persistInTx(group1);
+		persistInTx(group2);
+		
+		manager.deleteLunchGroupsInTx(em);
 	}
 
 	@Test
 	public void testDistributeUsersInUndersizedGroupToOtherGroupsFourPlusOne() {
 		
+		User benji = new User("benji", "benji@home");
+		User tiers = new User("tiers", "tiers@home");
+		User berta = new User("berta", "berta@fairfax");
+		User lee = new User("lee", "lee@fairfax");
+		User ash = new User("ash", "ash@ashburn");
+		persistInTx(benji);
+		persistInTx(tiers);
+		persistInTx(berta);
+		persistInTx(lee);
+		persistInTx(ash);
+		
 		LunchGroup group = new LunchGroup();
-		group.addUser(new User("benji", "benji@home"));
-		group.addUser(new User("tiers", "tiers@home"));
-		group.addUser(new User("berta", "berta@fairfax"));
-		group.addUser(new User("lee", "lee@fairfax"));
+		group.addUserAndKey(benji);
+		group.addUserAndKey(tiers);
+		group.addUserAndKey(berta);
+		group.addUserAndKey(lee);
 		
 		LunchGroup undersizedGroup = new LunchGroup();
-		undersizedGroup.addUser(new User("ash", "ash@ashburn"));
+		undersizedGroup.addUserAndKey(ash);
 		
 		ArrayList<LunchGroup> groups = new ArrayList<>();
 		groups.add(group);
@@ -99,15 +124,28 @@ public class LunchManagerTest {
 	@Test
 	public void testDistributeUsersInUndersizedGroupToOtherGroupsFourPlusTwo() {
 		
+		User benji = new User("benji", "benji@home");
+		User tiers = new User("tiers", "tiers@home");
+		User berta = new User("berta", "berta@fairfax");
+		User lee = new User("lee", "lee@fairfax");
+		User ash = new User("ash", "ash@ashburn");
+		User sam = new User("sam", "sam@donutshop");
+		persistInTx(benji);
+		persistInTx(tiers);
+		persistInTx(berta);
+		persistInTx(lee);
+		persistInTx(ash);
+		persistInTx(sam);
+		
 		LunchGroup group = new LunchGroup();
-		group.addUser(new User("benji", "benji@home"));
-		group.addUser(new User("tiers", "tiers@home"));
-		group.addUser(new User("berta", "berta@fairfax"));
-		group.addUser(new User("lee", "lee@fairfax"));
+		group.addUserAndKey(benji);
+		group.addUserAndKey(tiers);
+		group.addUserAndKey(berta);
+		group.addUserAndKey(lee);
 		
 		LunchGroup undersizedGroup = new LunchGroup();
-		undersizedGroup.addUser(new User("ash", "ash@ashburn"));
-		undersizedGroup.addUser(new User("sam", "sam@donutshop"));
+		undersizedGroup.addUserAndKey(ash);
+		undersizedGroup.addUserAndKey(sam);
 		
 		ArrayList<LunchGroup> groups = new ArrayList<>();
 		groups.add(group);
@@ -132,21 +170,42 @@ public class LunchManagerTest {
 	@Test
 	public void testDistributeUsersInUndersizedGroupToOtherGroupsTwoGroupsOfFourPlusTwo() {
 		
+		User benji = new User("benji", "benji@home");
+		User tiers = new User("tiers", "tiers@home");
+		User berta = new User("berta", "berta@fairfax");
+		User lee = new User("lee", "lee@fairfax");
+		User ash = new User("ash", "ash@ashburn");
+		User sam = new User("sam", "sam@donutshop");
+		User jeffrey = new User("jeffrey", "jeffrey@dc");
+		User tim = new User("tim", "tim@dc");
+		User jelena = new User("jelena", "jelena@dc");
+		User byrd = new User("byrd", "byrd@dc");
+		persistInTx(benji);
+		persistInTx(tiers);
+		persistInTx(berta);
+		persistInTx(lee);
+		persistInTx(ash);
+		persistInTx(sam);
+		persistInTx(jeffrey);
+		persistInTx(tim);
+		persistInTx(jelena);
+		persistInTx(byrd);
+		
 		LunchGroup group1 = new LunchGroup();
-		group1.addUser(new User("benji", "benji@home"));
-		group1.addUser(new User("tiers", "tiers@home"));
-		group1.addUser(new User("berta", "berta@fairfax"));
-		group1.addUser(new User("lee", "lee@fairfax"));
+		group1.addUserAndKey(benji);
+		group1.addUserAndKey(tiers);
+		group1.addUserAndKey(berta);
+		group1.addUserAndKey(lee);
 		
 		LunchGroup group2 = new LunchGroup();
-		group2.addUser(new User("jeffrey", "jeffrey@dc"));
-		group2.addUser(new User("tim", "tim@dc"));
-		group2.addUser(new User("jelena", "jelena@dc"));
-		group2.addUser(new User("byrd", "byrd@dc"));
+		group2.addUserAndKey(jeffrey);
+		group2.addUserAndKey(tim);
+		group2.addUserAndKey(jelena);
+		group2.addUserAndKey(byrd);
 		
 		LunchGroup undersizedGroup = new LunchGroup();
-		undersizedGroup.addUser(new User("ash", "ash@ashburn"));
-		undersizedGroup.addUser(new User("sam", "sam@donutshop"));
+		undersizedGroup.addUserAndKey(ash);
+		undersizedGroup.addUserAndKey(sam);
 		
 		ArrayList<LunchGroup> groups = new ArrayList<>();
 		groups.add(group1);
@@ -173,17 +232,34 @@ public class LunchManagerTest {
 	@Test
 	public void testNotifyUsersAboutNewLunchGroups(){
 		
+		User benji = new User("benji", "benji@home");
+		User tiers = new User("tiers", "tiers@home");
+		User berta = new User("berta", "berta@fairfax");
+		User lee = new User("lee", "lee@fairfax");
+		User jeffrey = new User("jeffrey", "jeffrey@dc");
+		User tim = new User("tim", "tim@dc");
+		User jelena = new User("jelena", "jelena@dc");
+		User byrd = new User("byrd", "byrd@dc");
+		persistInTx(benji);
+		persistInTx(tiers);
+		persistInTx(berta);
+		persistInTx(lee);
+		persistInTx(jeffrey);
+		persistInTx(tim);
+		persistInTx(jelena);
+		persistInTx(byrd);
+		
 		LunchGroup group1 = new LunchGroup();
-		group1.addUser(new User("benji", "benji@home"));
-		group1.addUser(new User("tiers", "tiers@home"));
-		group1.addUser(new User("berta", "berta@fairfax"));
-		group1.addUser(new User("lee", "lee@fairfax"));
+		group1.addUser(benji);
+		group1.addUser(tiers);
+		group1.addUser(berta);
+		group1.addUser(lee);
 		
 		LunchGroup group2 = new LunchGroup();
-		group2.addUser(new User("jeffrey", "jeffrey@dc"));
-		group2.addUser(new User("tim", "tim@dc"));
-		group2.addUser(new User("jelena", "jelena@dc"));
-		group2.addUser(new User("byrd", "byrd@dc"));
+		group2.addUser(jeffrey);
+		group2.addUser(tim);
+		group2.addUser(jelena);
+		group2.addUser(byrd);
 		
 		List<LunchGroup> groups = Arrays.asList(group1, group2);
 		

@@ -19,6 +19,7 @@ import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Message;
 import com.google.appengine.api.mail.MailServiceFactory;
 import com.popsugar.lunch.ui.client.LunchGroup;
+import com.popsugar.lunch.ui.client.LunchGroupData;
 import com.popsugar.lunch.ui.client.User;
 
 public class LunchManager {
@@ -47,26 +48,10 @@ public class LunchManager {
 		}
 	}
 	
-	public ArrayList<LunchGroup> getLunchGroups(EntityManager em){
-		String q = "select g from LunchGroup g";
-		List<LunchGroup> groups = em.createQuery(q, LunchGroup.class).getResultList();
-		
-		Map<Long,User> userMap = getAllUsersMapped(em);
-		for( LunchGroup group : groups ){
-			for( Long userKey : group.getUserKeys() ){
-				User user = userMap.get(userKey);
-				group.addUser(user);
-			}
-		}
-		
-		return new ArrayList<>(groups);
-	}
-	
-	public String getCurrentWeek(){
-		Calendar startOfWeek = Calendar.getInstance();
-		startOfWeek.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-		SimpleDateFormat df = new SimpleDateFormat("MMMM dd, yyyy");
-		return df.format(startOfWeek.getTime());
+	public LunchGroupData getLunchGroupData(EntityManager em){
+		ArrayList<LunchGroup> groups = getLunchGroupsWithUsers(em);
+		String week = getCurrentWeek();
+		return new LunchGroupData(groups, week);
 	}
 	
 	public void regenerateLunchGroups(EntityManager em){
@@ -80,6 +65,33 @@ public class LunchManager {
 	//-------------------------------------------------------------------------------------------
 	//Package protected methods
 	//-------------------------------------------------------------------------------------------
+	
+	ArrayList<LunchGroup> getLunchGroupsWithUsers(EntityManager em){
+		
+		List<LunchGroup> groups = getLunchGroups(em);
+		
+		Map<Long,User> userMap = getAllUsersMapped(em);
+		for( LunchGroup group : groups ){
+			for( Long userKey : group.getUserKeys() ){
+				User user = userMap.get(userKey);
+				group.addUser(user);
+			}
+		}
+		
+		return new ArrayList<>(groups);
+	}
+	
+	String getCurrentWeek(){
+		Calendar startOfWeek = Calendar.getInstance();
+		startOfWeek.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+		SimpleDateFormat df = new SimpleDateFormat("MMMM dd, yyyy");
+		return df.format(startOfWeek.getTime());
+	}
+	
+	List<LunchGroup> getLunchGroups(EntityManager em){
+		String q = "select g from LunchGroup g";
+		return em.createQuery(q, LunchGroup.class).getResultList();
+	}
 	
 	void notifyUsersAboutNewLunchGroups(List<LunchGroup> lunchGroups){
 		
@@ -141,8 +153,7 @@ public class LunchManager {
 		Iterator<User> i = users.iterator();
 		while( i.hasNext() ){
 			User user = i.next();
-			currentGroup.addUserKey(user.getKey());
-			currentGroup.addUser(user);
+			currentGroup.addUserAndKey(user);
 			if( currentGroup.isFull() ){
 				groups.add(currentGroup);
 				if( i.hasNext() )
@@ -161,10 +172,14 @@ public class LunchManager {
 	}
 	
 	void deleteLunchGroupsInTx(EntityManager em){
-		String dml = "delete from LunchGroup g";
 		em.getTransaction().begin();
-		em.createQuery(dml).executeUpdate();
+		List<LunchGroup> groups = getLunchGroups(em);
 		em.getTransaction().commit();
+		for( LunchGroup group : groups ){
+			em.getTransaction().begin();
+			em.remove(group);
+			em.getTransaction().commit();
+		}
 	}
 	
 	void persistLunchGroupsInTx(EntityManager em, List<LunchGroup> groups){
@@ -182,26 +197,26 @@ public class LunchManager {
 		}
 		else if( undersizedGroup.size() == 1 ){
 			//distribute the one user in the undersized group to create a group with 5 people
-			groups.get(0).addUser(undersizedGroup.getUsers().get(0));
+			groups.get(0).addUserAndKey(undersizedGroup.getUsers().get(0));
 		}
 		else if( undersizedGroup.size() == 2 ){
 			if( groups.size() == 1 ){
 				//create two groups of three
 				LunchGroup groupOne = new LunchGroup();
 				LunchGroup groupTwo = new LunchGroup();
-				groupOne.addUser(groups.get(0).getUsers().get(0));
-				groupOne.addUser(groups.get(0).getUsers().get(1));
-				groupOne.addUser(groups.get(0).getUsers().get(2));
-				groupTwo.addUser(groups.get(0).getUsers().get(3));
-				groupTwo.addUser(undersizedGroup.getUsers().get(0));
-				groupTwo.addUser(undersizedGroup.getUsers().get(1));
+				groupOne.addUserAndKey(groups.get(0).getUsers().get(0));
+				groupOne.addUserAndKey(groups.get(0).getUsers().get(1));
+				groupOne.addUserAndKey(groups.get(0).getUsers().get(2));
+				groupTwo.addUserAndKey(groups.get(0).getUsers().get(3));
+				groupTwo.addUserAndKey(undersizedGroup.getUsers().get(0));
+				groupTwo.addUserAndKey(undersizedGroup.getUsers().get(1));
 				groups.clear();
 				groups.add(groupOne);
 				groups.add(groupTwo);
 			}
 			else{ //distribute the two users in order to create two groups of 5 people
-				groups.get(0).addUser(undersizedGroup.getUsers().get(0));
-				groups.get(1).addUser(undersizedGroup.getUsers().get(1));
+				groups.get(0).addUserAndKey(undersizedGroup.getUsers().get(0));
+				groups.get(1).addUserAndKey(undersizedGroup.getUsers().get(1));
 			}
 		}
 	}

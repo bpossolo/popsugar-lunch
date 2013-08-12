@@ -45,7 +45,12 @@ public class LunchGroup implements IsSerializable {
 		return user.getKey().equals(coordinatorKey);
 	}
 	
-	public void addUserKey(Long userKey){
+	public void addUserAndKey(User user){
+		addUser(user);
+		addUserKey(user.getKey());
+	}
+	
+	private void addUserKey(Long userKey){
 		if( userKeys == null )
 			userKeys = new ArrayList<Long>();
 		userKeys.add(userKey);
