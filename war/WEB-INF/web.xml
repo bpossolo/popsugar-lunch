@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+
+	<listener>
+		<listener-class>com.popsugar.lunch.server.WebAppInitializer</listener-class>
+	</listener>
+	
+	<security-constraint>
+  		<web-resource-collection>
+  			<web-resource-name>Cron</web-resource-name>
+    		<url-pattern>/cron/*</url-pattern>
+    	</web-resource-collection>
+    	<auth-constraint>
+    		<role-name>admin</role-name>
+    	</auth-constraint>
+	</security-constraint>
+	
+	<servlet>
+		<servlet-name>LunchRpcService</servlet-name>
+		<servlet-class>com.popsugar.lunch.server.LunchRpcServiceImpl</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>CronHandler</servlet-name>
+		<servlet-class>com.popsugar.lunch.server.CronHandler</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>LunchRpcService</servlet-name>
+		<url-pattern>/lunch/lunch-rpc-service</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>CronHandler</servlet-name>
+		<url-pattern>/cron/generate-groups</url-pattern>
+	</servlet-mapping>
+	
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+  
+</web-app>

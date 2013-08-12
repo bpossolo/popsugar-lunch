@@ -1,0 +1,10 @@
+test-classes
+gwt-unitCache
+war/lunch
+war/WEB-INF/appengine-generated
+war/WEB-INF/classes
+war/WEB-INF/deploy
+*~
+.classpath
+.project
+.settings
