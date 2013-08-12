@@ -12,11 +12,11 @@ public class CronHandler extends HttpServlet {
 
 	private static final long serialVersionUID = -6217679030930360743L;
 	
-	private LunchManager dao;
+	private LunchManager manager;
 	
 	@Override
 	public void init() throws ServletException {
-		dao = (LunchManager)getServletContext().getAttribute(WebAppInitializer.LunchManager);
+		manager = (LunchManager)getServletContext().getAttribute(WebAppInitializer.LunchManager);
 	}
 	
 	@Override
@@ -24,7 +24,7 @@ public class CronHandler extends HttpServlet {
 			throws ServletException, IOException {
 		EntityManager em = EMF.get().createEntityManager();
 		try{
-			dao.regenerateLunchGroups(em);
+			manager.regenerateLunchGroups(em);
 			resp.getWriter().print("Lunch groups generated OK!");
 		}
 		finally{
