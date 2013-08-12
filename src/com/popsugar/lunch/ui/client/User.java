@@ -1,5 +1,7 @@
 package com.popsugar.lunch.ui.client;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -9,8 +11,10 @@ import com.google.gwt.user.client.rpc.GwtTransient;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 @Entity
-public class User implements IsSerializable {
+public class User implements IsSerializable, Serializable {
 	
+	private static final long serialVersionUID = -4720363515695180669L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long key;

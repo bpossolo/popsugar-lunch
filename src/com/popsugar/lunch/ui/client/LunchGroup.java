@@ -1,5 +1,6 @@
 package com.popsugar.lunch.ui.client;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +15,10 @@ import com.google.gwt.user.client.rpc.GwtTransient;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 @Entity
-public class LunchGroup implements IsSerializable {
+public class LunchGroup implements IsSerializable, Serializable {
 	
+	private static final long serialVersionUID = -750883076227779321L;
+
 	public static final int MinGroupSize = 3;
 	
 	public static final int UsersPerGroup = 4;

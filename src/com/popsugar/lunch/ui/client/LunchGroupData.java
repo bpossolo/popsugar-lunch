@@ -1,10 +1,13 @@
 package com.popsugar.lunch.ui.client;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class LunchGroupData implements IsSerializable {
+public class LunchGroupData implements IsSerializable, Serializable {
+
+	private static final long serialVersionUID = 9003011986715231292L;
 
 	private ArrayList<LunchGroup> groups;
 	

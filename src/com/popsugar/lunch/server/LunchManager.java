@@ -18,6 +18,9 @@ import javax.persistence.NoResultException;
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Message;
 import com.google.appengine.api.mail.MailServiceFactory;
+import com.google.appengine.api.memcache.Expiration;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.popsugar.lunch.ui.client.LunchGroup;
 import com.popsugar.lunch.ui.client.LunchGroupData;
 import com.popsugar.lunch.ui.client.User;
@@ -49,9 +52,17 @@ public class LunchManager {
 	}
 	
 	public LunchGroupData getLunchGroupData(EntityManager em){
-		ArrayList<LunchGroup> groups = getLunchGroupsWithUsers(em);
+		MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
 		String week = getCurrentWeek();
-		return new LunchGroupData(groups, week);
+		LunchGroupData data = (LunchGroupData)memcache.get(week);
+		if( data == null ){
+			ArrayList<LunchGroup> groups = getLunchGroupsWithUsers(em);
+			data = new LunchGroupData(groups, week);
+			Calendar oneWeekFromToday = Calendar.getInstance();
+			oneWeekFromToday.add(Calendar.WEEK_OF_MONTH, 1);
+			memcache.put(week, data, Expiration.onDate(oneWeekFromToday.getTime()));
+		}
+		return data;
 	}
 	
 	public void regenerateLunchGroups(EntityManager em){
@@ -60,6 +71,9 @@ public class LunchManager {
 		List<LunchGroup> groups = buildLunchGroups(users);
 		persistLunchGroupsInTx(em, groups);
 		notifyUsersAboutNewLunchGroups(groups);
+		String week = getCurrentWeek();
+		MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
+		memcache.delete(week);
 	}
 	
 	//-------------------------------------------------------------------------------------------
