@@ -2,6 +2,9 @@ package com.popsugar.lunch.ui.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -82,6 +85,26 @@ public class HomeView extends Composite {
 	
 	@UiHandler("signup")
 	void onClickSignup(ClickEvent e){
+		signup();
+	}
+	
+	@UiHandler("name")
+	void onNameEnterKey(KeyDownEvent e){
+		if( e.getNativeKeyCode() == KeyCodes.KEY_ENTER )
+			signup();
+	}
+	
+	@UiHandler("email")
+    void onEmailEnterKey(KeyDownEvent e){
+		if( e.getNativeKeyCode() == KeyCodes.KEY_ENTER )
+			signup();
+    }
+	
+	//-------------------------------------------------------------------------------------------
+	//Private methods
+	//-------------------------------------------------------------------------------------------
+	
+	private void signup(){
 		signup.setEnabled(false);
 		successMsg.setVisible(false);
 		String userName = name.getValue();
@@ -95,10 +118,6 @@ public class HomeView extends Composite {
 			createUser(userName, userEmail);
 		}
 	}
-	
-	//-------------------------------------------------------------------------------------------
-	//Private methods
-	//-------------------------------------------------------------------------------------------
 	
 	private void fetchCurrentLunchGroupsAndRender(){
 		rpcService.getLunchGroups(new AsyncCallback<LunchGroupData>() {

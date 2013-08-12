@@ -24,7 +24,7 @@
 				We need your name and email!
 			</g:Label>
 			<g:Label styleName="successMsg" ui:field="successMsg" visible="false">
-				Great! You'll now receive an email each week with your assigned group!
+				Great! You&#39;ll receive an email each week with a new lunch group!
 			</g:Label>
 			<div class="weekAndLegend">
 				<g:Label styleName="week" ui:field="weekLabel"/>
