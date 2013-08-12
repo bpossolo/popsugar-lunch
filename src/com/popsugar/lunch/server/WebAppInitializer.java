@@ -11,6 +11,7 @@ public class WebAppInitializer implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		LunchManager lunchManager = new LunchManager();
 		contextEvent.getServletContext().setAttribute(LunchManager, lunchManager);
+		EMF.get();
 	}
 
 	@Override
