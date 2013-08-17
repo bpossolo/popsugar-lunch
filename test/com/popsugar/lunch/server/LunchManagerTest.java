@@ -250,16 +250,16 @@ public class LunchManagerTest {
 		persistInTx(byrd);
 		
 		LunchGroup group1 = new LunchGroup();
-		group1.addUser(benji);
-		group1.addUser(tiers);
-		group1.addUser(berta);
-		group1.addUser(lee);
+		group1.addUserAndKey(benji);
+		group1.addUserAndKey(tiers);
+		group1.addUserAndKey(berta);
+		group1.addUserAndKey(lee);
 		
 		LunchGroup group2 = new LunchGroup();
-		group2.addUser(jeffrey);
-		group2.addUser(tim);
-		group2.addUser(jelena);
-		group2.addUser(byrd);
+		group2.addUserAndKey(jeffrey);
+		group2.addUserAndKey(tim);
+		group2.addUserAndKey(jelena);
+		group2.addUserAndKey(byrd);
 		
 		List<LunchGroup> groups = Arrays.asList(group1, group2);
 		
