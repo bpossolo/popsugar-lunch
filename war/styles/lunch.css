@@ -66,7 +66,8 @@ div.field {
 	box-shadow: 5px 5px 5px #ccc;
 	margin: 0 20px 20px 0;
 }
-.weekAndLegend {
+.weekAndLegend,
+h3 {
 	margin: 80px 0 20px 50px;
 	text-align: left;
 }
