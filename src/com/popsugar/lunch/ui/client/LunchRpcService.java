@@ -6,7 +6,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 @RemoteServiceRelativePath("lunch-rpc-service")
 public interface LunchRpcService extends RemoteService {
 	
-	void createUser(String name, String email);
+	void createUser(String name, String email, Location location);
 	
 	LunchGroupData getLunchGroups();
 

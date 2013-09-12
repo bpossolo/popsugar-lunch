@@ -21,6 +21,7 @@ import com.google.appengine.api.mail.MailServiceFactory;
 import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.popsugar.lunch.ui.client.Location;
 import com.popsugar.lunch.ui.client.LunchGroup;
 import com.popsugar.lunch.ui.client.LunchGroupData;
 import com.popsugar.lunch.ui.client.User;
@@ -67,13 +68,20 @@ public class LunchManager {
 	
 	public void regenerateLunchGroups(EntityManager em){
 		deleteLunchGroupsInTx(em);
-		List<User> users = getAllUsers(em);
-		List<LunchGroup> groups = buildLunchGroups(users);
-		persistLunchGroupsInTx(em, groups);
-		notifyUsersAboutNewLunchGroups(groups);
+		for( Location location : Location.values() ){
+			List<User> users = getActiveUsersByLocation(em, location);
+			List<LunchGroup> groups = buildLunchGroups(users, location);
+			persistLunchGroupsInTx(em, groups);
+			notifyUsersAboutNewLunchGroups(groups);
+		}
 		String week = getCurrentWeek();
 		MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
 		memcache.delete(week);
+	}
+	
+	public List<User> getAllUsers(EntityManager em){
+		String q = "select u from User u";
+		return new ArrayList<>(em.createQuery(q, User.class).getResultList());
 	}
 	
 	//-------------------------------------------------------------------------------------------
@@ -129,7 +137,7 @@ public class LunchManager {
 			}
 			
 			body.append("\nIf you know anyone that would like to join Lunch for Four, feel free to invite them via http://popsugar-lunch.appspot.com!\n\n")
-			.append("If you would like to be removed from Lunch for Four, please email Benjamin Possolo (bpossolo@popsugar.com)");
+			.append("If you would like to be removed from Lunch for Four, please email Benjamin Possolo (bpossolo@popsugar.com) or Lee Phillips (lphillips@popsugar.com)");
 			
 			Message msg = new Message();
 			msg.setSender("PopSugar Lunch for Four <noreply@popsugar-lunch.appspotmail.com>");
@@ -145,9 +153,13 @@ public class LunchManager {
 		}
 	}
 	
-	List<User> getAllUsers(EntityManager em){
-		String q = "select u from User u";
-		return new ArrayList<>(em.createQuery(q, User.class).getResultList());
+	List<User> getActiveUsersByLocation(EntityManager em, Location location){
+		String q = "select u from User u where location = :loc and active = :active";
+		return new ArrayList<>(
+			em.createQuery(q, User.class)
+			.setParameter("loc", location)
+			.setParameter("active", true)
+			.getResultList());
 	}
 	
 	Map<Long,User> getAllUsersMapped(EntityManager em){
@@ -157,7 +169,7 @@ public class LunchManager {
 		return map;
 	}
 	
-	List<LunchGroup> buildLunchGroups(List<User> users){
+	List<LunchGroup> buildLunchGroups(List<User> users, Location location){
 		
 		ArrayList<LunchGroup> groups = new ArrayList<>();
 		
@@ -166,7 +178,7 @@ public class LunchManager {
 		
 		Collections.shuffle(users);
 		
-		LunchGroup currentGroup = new LunchGroup();
+		LunchGroup currentGroup = new LunchGroup(location);
 		Iterator<User> i = users.iterator();
 		while( i.hasNext() ){
 			User user = i.next();
@@ -174,7 +186,7 @@ public class LunchManager {
 			if( currentGroup.isFull() ){
 				groups.add(currentGroup);
 				if( i.hasNext() )
-					currentGroup = new LunchGroup();
+					currentGroup = new LunchGroup(location);
 			}
 		}
 		
@@ -209,6 +221,8 @@ public class LunchManager {
 	
 	void distributeUsersInUndersizedGroupToOtherGroups(List<LunchGroup> groups, LunchGroup undersizedGroup){
 		
+		Location location = undersizedGroup.getLocation();
+		
 		if( groups.isEmpty() ){
 			groups.add(undersizedGroup);
 		}
@@ -219,8 +233,8 @@ public class LunchManager {
 		else if( undersizedGroup.size() == 2 ){
 			if( groups.size() == 1 ){
 				//create two groups of three
-				LunchGroup groupOne = new LunchGroup();
-				LunchGroup groupTwo = new LunchGroup();
+				LunchGroup groupOne = new LunchGroup(location);
+				LunchGroup groupTwo = new LunchGroup(location);
 				groupOne.addUserAndKey(groups.get(0).getUsers().get(0));
 				groupOne.addUserAndKey(groups.get(0).getUsers().get(1));
 				groupOne.addUserAndKey(groups.get(0).getUsers().get(2));

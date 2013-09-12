@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class HomeView extends Composite {
@@ -31,6 +32,8 @@ public class HomeView extends Composite {
 	//-------------------------------------------------------------------------------------------
 	
 	private static final LunchRpcServiceAsync rpcService = GWT.create(LunchRpcService.class);
+	
+	private static final String NO_LOCATION = "no-location";
 	
 	//-------------------------------------------------------------------------------------------
 	//Ui fields
@@ -55,7 +58,16 @@ public class HomeView extends Composite {
 	Label weekLabel;
 	
 	@UiField
-	FlowPanel lunchGroupsContainer;
+	ListBox location;
+	
+	@UiField
+	FlowPanel nyLunchGroupsContainer;
+	
+	@UiField
+	FlowPanel laLunchGroupsContainer;
+	
+	@UiField
+	FlowPanel sfLunchGroupsContainer;
 	
 	//-------------------------------------------------------------------------------------------
 	//Constructors
@@ -65,6 +77,9 @@ public class HomeView extends Composite {
 		initWidget(binder.createAndBindUi(this));
 		name.getElement().setAttribute("placeholder", "Your first and last name...");
 		email.getElement().setAttribute("placeholder", "Your email...");
+		location.addItem("Select where you work", NO_LOCATION);
+		for( Location loc : Location.values() )
+			location.addItem(loc.toString(), loc.name());
 	}
 	
 	//-------------------------------------------------------------------------------------------
@@ -108,13 +123,15 @@ public class HomeView extends Composite {
 		successMsg.setVisible(false);
 		String userName = name.getValue();
 		String userEmail = email.getValue();
-		if( userName.trim().isEmpty() || userEmail.trim().isEmpty() ){
+		String locationVal = location.getValue(location.getSelectedIndex());
+		if( isBlank(userName) || isBlank(userEmail) || isBlank(locationVal) || NO_LOCATION.equals(locationVal) ){
 			validationError.setVisible(true);
 			signup.setEnabled(true);
 		}
 		else{
+			Location userLocation = Location.valueOf(locationVal);
 			validationError.setVisible(false);
-			createUser(userName, userEmail);
+			createUser(userName, userEmail, userLocation);
 		}
 	}
 	
@@ -123,8 +140,21 @@ public class HomeView extends Composite {
 			@Override
 			public void onSuccess(LunchGroupData data) {
 				weekLabel.setText("Lunch groups for week of " + data.getWeek());
-				for( LunchGroup group : data.getGroups() )
-					lunchGroupsContainer.add(new LunchGroupPanel(group));
+				for( LunchGroup group : data.getGroups() ){
+					LunchGroupPanel lgp = new LunchGroupPanel(group);
+					switch( group.getLocation() ){
+					case SanFrancisco :
+						sfLunchGroupsContainer.add(lgp);
+						break;
+					case NewYork :
+						nyLunchGroupsContainer.add(lgp);
+						break;
+					case LosAngeles :
+						laLunchGroupsContainer.add(lgp);
+						break;
+					}
+					
+				}
 			};
 			
 			@Override
@@ -134,13 +164,14 @@ public class HomeView extends Composite {
 		});
 	}
 	
-	private void createUser(String userName, String userEmail){
-		rpcService.createUser(userName, userEmail, new AsyncCallback<Void>() {
+	private void createUser(String userName, String userEmail, Location userLocation){
+		rpcService.createUser(userName, userEmail, userLocation, new AsyncCallback<Void>() {
 			@Override
 			public void onSuccess(Void result) {
 				successMsg.setVisible(true);
 				name.setValue(null);
 				email.setValue(null);
+				location.setSelectedIndex(0);
 				signup.setEnabled(true);
 			}
 			
@@ -150,6 +181,10 @@ public class HomeView extends Composite {
 				signup.setEnabled(true);
 			}
 		});
+	}
+	
+	private boolean isBlank(String s){
+		return s == null || s.trim().isEmpty();
 	}
 
 }

@@ -35,6 +35,14 @@ public class LunchGroup implements IsSerializable, Serializable {
 	
 	@Transient
 	private List<User> users;
+	
+	private Location location;
+	
+	LunchGroup(){}
+	
+	public LunchGroup(Location location){
+		this.location = location;
+	}
 
 	public List<Long> getUserKeys() {
 		return userKeys;
@@ -73,7 +81,19 @@ public class LunchGroup implements IsSerializable, Serializable {
 		return userKeys.size() == UsersPerGroup;
 	}
 	
+	public boolean contains(User user){
+		boolean keyExists = userKeys != null && userKeys.contains(user.getKey());
+		if( keyExists )
+			return true;
+		boolean emailExists = users != null && users.contains(user);
+		return emailExists;
+	}
+	
 	public int size(){
 		return (userKeys == null) ? 0 : userKeys.size();
+	}
+	
+	public Location getLocation() {
+		return location;
 	}
 }

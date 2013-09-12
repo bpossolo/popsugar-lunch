@@ -18,13 +18,16 @@
 				<div class="field">
 					<g:TextBox ui:field="email"/>
 				</div>
+				<div class="field">
+					<g:ListBox ui:field="location"/>
+				</div>
 				<g:Button ui:field="signup">Sign Me Up!</g:Button>
 			</div>
 			<g:Label styleName="validationError" ui:field="validationError" visible="false">
-				We need your name and email!
+				We need your name, email and location!
 			</g:Label>
 			<g:Label styleName="successMsg" ui:field="successMsg" visible="false">
-				Great! You&#39;ll receive an email each week with a new lunch group!
+				Great! You&#39;ll receive an email every other week with a new lunch group!
 			</g:Label>
 			<div class="weekAndLegend">
 				<g:Label styleName="week" ui:field="weekLabel"/>
@@ -32,7 +35,15 @@
 					* = Person responsible for coordinating lunch location/date
 				</div>
 			</div>
-			<g:FlowPanel ui:field="lunchGroupsContainer" styleName="currentLunchGroups"/>
+			
+			<h3>San Francisco</h3>
+			<g:FlowPanel ui:field="sfLunchGroupsContainer" styleName="currentLunchGroups"/>
+			
+			<h3>Los Angeles</h3>
+			<g:FlowPanel ui:field="laLunchGroupsContainer" styleName="currentLunchGroups"/>
+			
+			<h3>New York</h3>
+			<g:FlowPanel ui:field="nyLunchGroupsContainer" styleName="currentLunchGroups"/>
 		</div>
 	</g:HTMLPanel>
 </ui:UiBinder>

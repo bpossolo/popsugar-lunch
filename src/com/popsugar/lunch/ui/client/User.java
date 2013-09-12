@@ -24,13 +24,45 @@ public class User implements IsSerializable, Serializable {
 	@GwtTransient
 	private String email;
 	
+	private boolean active;
+	
+	private Location location;
+	
 	User(){}
 	
-	public User(String name, String email){
+	public User(String name, String email, Location location){
 		this.name = name;
 		this.email = email;
+		active = true;
+		this.location = location;
 	}
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((email == null) ? 0 : email.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if( this == obj )
+			return true;
+		if( obj == null )
+			return false;
+		if( getClass() != obj.getClass() )
+			return false;
+		User other = (User)obj;
+		if( email == null ){
+			if( other.email != null )
+				return false;
+		}
+		else if( ! email.equals(other.email) )
+			return false;
+		return true;
+	}
+
 	public Long getKey() {
 		return key;
 	}
@@ -41,6 +73,18 @@ public class User implements IsSerializable, Serializable {
 	
 	public String getEmail() {
 		return email;
+	}
+	
+	public boolean isActive() {
+		return active;
+	}
+	
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+	
+	public Location getLocation() {
+		return location;
 	}
 
 }

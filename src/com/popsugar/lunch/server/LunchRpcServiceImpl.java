@@ -4,6 +4,7 @@ import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.popsugar.lunch.ui.client.Location;
 import com.popsugar.lunch.ui.client.LunchGroupData;
 import com.popsugar.lunch.ui.client.LunchRpcService;
 import com.popsugar.lunch.ui.client.User;
@@ -20,10 +21,10 @@ public class LunchRpcServiceImpl extends RemoteServiceServlet implements LunchRp
 	}
 	
 	@Override
-	public void createUser(String name, String email) {
+	public void createUser(String name, String email, Location location) {
 		EntityManager em = EMF.get().createEntityManager();
 		try{
-			lunchManager.createUserInTx(em, new User(name, email));
+			lunchManager.createUserInTx(em, new User(name, email, location));
 		}
 		finally{
 			if( em.getTransaction().isActive() )
