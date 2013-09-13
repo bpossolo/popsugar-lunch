@@ -3,7 +3,7 @@
 	<cron>
 		<url>/cron/generate-groups</url>
 		<description>Generate lunch for four groups for the upcoming week</description>
-		<schedule>every monday 10:00</schedule>
+		<schedule>first,third monday 10:00</schedule>
 		<timezone>America/Los_Angeles</timezone>
 	</cron>
 </cronentries>
