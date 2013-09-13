@@ -4,7 +4,7 @@
 	
 	<g:HTMLPanel>
 		<header>
-			<img class="logo" src="/images/popsugar-logo-pink.jpg"/>
+			<img class="logo" src="/images/popsugar-logo-pink.png"/>
 			<h1>Lunch for Four</h1>
 		</header>
 		<div class="content">

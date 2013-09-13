@@ -33,7 +33,7 @@ p.intro {
 }
 .gwt-TextBox:focus,
 .gwt-ListBox:focus {
-	outline-color: #DE0052;
+	outline-color: #E06;
 }
 .gwt-Button {
 	height: 40px;
@@ -47,7 +47,7 @@ p.intro {
 }
 .successMsg {
 	font-size: 20px;
-	color: #DE0052;
+	color: #E06;
 	margin-top: 30px;
 }
 .currentLunchGroups {
@@ -66,7 +66,7 @@ p.intro {
 	padding: 10px;
 	border-radius: 5px;
 	text-align: left;
-	background-color: #cb0d67;
+	background-color: #E06;
 	color: white;
 	box-shadow: 5px 5px 5px #ccc;
 	margin: 0 20px 20px 0;
