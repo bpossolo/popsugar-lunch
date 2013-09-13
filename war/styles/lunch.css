@@ -17,8 +17,11 @@ p.intro {
 	padding: 0;
 	font-size: 18px;
 }
-div.field {
+.field {
 	margin-bottom: 10px;
+}
+.field:last-of-type {
+	margin-bottom: 20px;
 }
 .gwt-TextBox {
 	height: 30px;
@@ -27,7 +30,8 @@ div.field {
 	font-size: 18px;
 	padding: 5px;
 }
-.gwt-TextBox:focus {
+.gwt-TextBox:focus,
+.gwt-ListBox:focus {
 	outline-color: #DE0052;
 }
 .gwt-Button {
@@ -66,10 +70,14 @@ div.field {
 	box-shadow: 5px 5px 5px #ccc;
 	margin: 0 20px 20px 0;
 }
-.weekAndLegend,
-h3 {
+.weekAndLegend {
 	margin: 80px 0 20px 50px;
 	text-align: left;
+}
+h3 {
+	margin: 20px 0 20px 50px;
+	text-align: left;
+	font-size: 20px;
 }
 .week {
 	font-size: 20px;
@@ -77,4 +85,12 @@ h3 {
 }
 .legend {
 	font-size: 16px;
+}
+.gwt-ListBox {
+	width: 364px;
+	padding: 5px;
+	font-size: 16px;
+	line-height: 1;
+	border-radius: 0;
+	height: 34px;
 }
