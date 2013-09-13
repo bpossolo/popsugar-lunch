@@ -96,4 +96,8 @@ public class LunchGroup implements IsSerializable, Serializable {
 	public Location getLocation() {
 		return location;
 	}
+	
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 }

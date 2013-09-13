@@ -79,14 +79,19 @@ public class LunchManager {
 		memcache.delete(week);
 	}
 	
-	public List<User> getAllUsers(EntityManager em){
+	//-------------------------------------------------------------------------------------------
+	//Package protected methods
+	//-------------------------------------------------------------------------------------------
+	
+	List<User> getAllUsers(EntityManager em){
 		String q = "select u from User u";
 		return new ArrayList<>(em.createQuery(q, User.class).getResultList());
 	}
 	
-	//-------------------------------------------------------------------------------------------
-	//Package protected methods
-	//-------------------------------------------------------------------------------------------
+	List<LunchGroup> getLunchGroups(EntityManager em){
+		String q = "select g from LunchGroup g";
+		return em.createQuery(q, LunchGroup.class).getResultList();
+	}
 	
 	ArrayList<LunchGroup> getLunchGroupsWithUsers(EntityManager em){
 		
@@ -108,11 +113,6 @@ public class LunchManager {
 		startOfWeek.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 		SimpleDateFormat df = new SimpleDateFormat("MMMM dd, yyyy");
 		return df.format(startOfWeek.getTime());
-	}
-	
-	List<LunchGroup> getLunchGroups(EntityManager em){
-		String q = "select g from LunchGroup g";
-		return em.createQuery(q, LunchGroup.class).getResultList();
 	}
 	
 	void notifyUsersAboutNewLunchGroups(List<LunchGroup> lunchGroups){
