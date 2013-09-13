@@ -37,7 +37,7 @@ public class LunchRpcServiceImpl extends RemoteServiceServlet implements LunchRp
 	public LunchGroupData getLunchGroups() {
 		EntityManager em = EMF.get().createEntityManager();
 		try{
-			return lunchManager.getLunchGroupData(em);
+			return lunchManager.getLunchGroupData(em, getThreadLocalRequest());
 		}
 		finally{
 			em.close();

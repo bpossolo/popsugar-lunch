@@ -140,6 +140,8 @@ public class HomeView extends Composite {
 			@Override
 			public void onSuccess(LunchGroupData data) {
 				weekLabel.setText("Lunch groups for week of " + data.getWeek());
+				if( data.getUserLocation() != null )
+					location.setSelectedIndex(data.getUserLocation().ordinal() + 1);
 				for( LunchGroup group : data.getGroups() ){
 					LunchGroupPanel lgp = new LunchGroupPanel(group);
 					switch( group.getLocation() ){

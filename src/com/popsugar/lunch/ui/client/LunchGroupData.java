@@ -13,6 +13,8 @@ public class LunchGroupData implements IsSerializable, Serializable {
 	
 	private String week;
 	
+	private Location userLocation;
+	
 	LunchGroupData(){}
 	
 	public LunchGroupData(ArrayList<LunchGroup> groups, String week){
@@ -26,5 +28,13 @@ public class LunchGroupData implements IsSerializable, Serializable {
 	
 	public String getWeek() {
 		return week;
+	}
+	
+	public Location getUserLocation() {
+		return userLocation;
+	}
+	
+	public void setUserLocation(Location userLocation) {
+		this.userLocation = userLocation;
 	}
 }

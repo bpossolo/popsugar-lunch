@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.servlet.http.HttpServletRequest;
 
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Message;
@@ -52,7 +53,8 @@ public class LunchManager {
 		}
 	}
 	
-	public LunchGroupData getLunchGroupData(EntityManager em){
+	public LunchGroupData getLunchGroupData(EntityManager em, HttpServletRequest request){
+		
 		MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
 		String week = getCurrentWeek();
 		LunchGroupData data = (LunchGroupData)memcache.get(week);
@@ -63,6 +65,10 @@ public class LunchManager {
 			oneWeekFromToday.add(Calendar.WEEK_OF_MONTH, 1);
 			memcache.put(week, data, Expiration.onDate(oneWeekFromToday.getTime()));
 		}
+		
+		Location userLocation = estimateUserLocation(request);
+		data.setUserLocation(userLocation);
+		
 		return data;
 	}
 	
@@ -250,6 +256,25 @@ public class LunchManager {
 				groups.get(1).addUserAndKey(undersizedGroup.getUsers().get(1));
 			}
 		}
+	}
+	
+	Location estimateUserLocation(HttpServletRequest request){
+		
+		String state = request.getHeader("X-AppEngine-Region");
+		String city = request.getHeader("X-AppEngine-City");
+		
+		log.log(Level.INFO, "State {0}, City {1}", new Object[]{state, city});
+		
+		if( "ca".equalsIgnoreCase(state) ){
+			if( "san francisco".equalsIgnoreCase(city) )
+				return Location.SanFrancisco;
+			if( "los angeles".equalsIgnoreCase(city) )
+				return Location.LosAngeles;
+		}
+		if( "ny".equalsIgnoreCase(state) )
+			return Location.NewYork;
+		
+		return null;
 	}
 
 }
