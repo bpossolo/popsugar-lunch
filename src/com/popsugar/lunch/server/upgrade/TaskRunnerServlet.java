@@ -26,6 +26,7 @@ public class TaskRunnerServlet extends HttpServlet {
 			UpgradeTask task = (UpgradeTask)Class.forName(className).newInstance();
 			task.setServletContext(getServletContext());
 			task.run();
+			resp.getWriter().print("Task executed OK!");
 		}
 		catch(ClassNotFoundException | IllegalAccessException | InstantiationException e ){
 			throw new ServletException("Unable to execute task [" + className + "]", e);
