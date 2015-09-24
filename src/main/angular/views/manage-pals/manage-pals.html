@@ -1,0 +1,32 @@
+<div class="manage-pals-view">
+
+  <div class="all-users-container column">
+    <div class="user-search">
+      <form>
+        <input type="text" ng-model="search" placeholder="Search users...">
+      </form>
+    </div>
+    <div class="all-users user-list">
+      <div class="user"
+        ng-repeat="user in allUsers | filter:{name: search}"
+        ng-click="toggleUser(user)">
+        <input class="checkbox" type="checkbox" ng-checked="user.selected">
+        <span class="name">{{user.name}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="selected-users-container column">
+    <h3 class="select-users-label">Select 2 users to buddy up</h3>
+    <div class="selected-users user-list">
+      <div class="user" ng-repeat="user in allUsers | filter:{selected: true}">
+        <span class="name">{{user.name}}</span>
+      </div>
+    </div>
+    <button class="btn link-users" ng-click="linkUsers()" ng-disabled="numSelected !== 2">Connect!</button>
+    <div class="message success" ng-if="success">
+      Pair created!
+    </div>
+  </div>
+
+</div>

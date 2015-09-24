@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<cronentries>
-	<cron>
-		<url>/cron/generate-groups</url>
-		<description>Generate lunch for four groups for the upcoming week</description>
-		<schedule>first,third monday 10:00</schedule>
-		<timezone>America/Los_Angeles</timezone>
-	</cron>
-</cronentries>

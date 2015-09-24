@@ -1,0 +1,114 @@
+
+$btn-main-color: #444;
+$accent-color: #e06;
+$success: green;
+$error: red;
+$font-family-base: 'AvenirNext-Medium', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+$font-family-accent: 'BrandonGrotesqueBold', 'AvenirNext-DemiBold', 'Helvetica-Bold', 'Arial-Bold', sans-serif;
+$font-family-serif: 'Baskerville', 'HoeflerText', 'TimesNewRomanPS', serif;
+
+@font-face {
+  font-family: 'BrandonGrotesqueBold';
+  src: url('./assets/fonts/BrandonGrotesque-Bold.otf');
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+	font-family: arial, sans-serif;
+  margin: 0;
+  padding: 0;
+
+  &.home {
+    min-height: 600px;
+    background-image: url('/assets/images/chopping-board-vegetables.jpg');
+    background-size: cover;
+  }
+}
+
+input[type=text] {
+  height: 30px;
+  width: 350px;
+  line-height: 30px;
+  font-size: 18px;
+  padding: 5px;
+
+  &:focus {
+    outline-color: $accent-color;
+  }
+}
+
+.btn {
+  height: 40px;
+  min-width: 240px;
+  padding: 6px 20px;
+  color: #fff;
+  font-size: 18px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-align: center;
+  border: 1px solid $btn-main-color;
+  background-color: $btn-main-color;
+  outline: 0;
+  -webkit-appearance: none;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+  }
+}
+
+header {
+  background-color: white;
+  margin: 0;
+  padding: 0;
+  height: 40px;
+  text-align: center;
+  opacity: 0.8;
+
+  .logo {
+    height: 40px;
+    position: absolute;
+    left: 20px;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  .name {
+    line-height: 40px;
+    font-family: $font-family-accent;
+    font-size: 28px;
+    color: $btn-main-color;
+    text-transform: uppercase;
+  }
+
+  .manage-pals {
+    position: absolute;
+    right: 30px;
+    line-height: 40px;
+
+    a {
+      color: $btn-main-color;
+
+      &:visited {
+        color: $btn-main-color;
+      }
+    }
+  }
+}
+
+@import '../angular/views/home/home';
+@import '../angular/views/lunch-groups/lunch-groups';
+@import '../angular/views/register/register';
+@import '../angular/views/manage-pals/manage-pals';

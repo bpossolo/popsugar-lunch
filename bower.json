@@ -1,0 +1,15 @@
+{
+  "name": "popsugar-lunch-for-four",
+  "version": "1.0.0",
+  "authors": [
+    "Benjamin Possolo <bpossolo@gmail.com>"
+  ],
+  "description": "PopSugar Lunch For Four",
+  "homepage": "http://lunch.popsugar.com",
+  "private": true,
+  "dependencies": {
+    "angular": "1.2.28",
+    "angular-ui-router": "0.2.15",
+    "lodash": "3.10.1"
+  }
+}

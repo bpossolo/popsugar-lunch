@@ -1,0 +1,57 @@
+.lunch-groups-view {
+  width: 80%;
+  margin: 40px auto 0;
+
+  .week-and-legend {
+    text-align: center;
+    margin-bottom: 30px;
+
+    .week {
+      font-size: 20px;
+      margin-bottom: 10px;
+      font-family: $font-family-serif;
+    }
+
+    .legend {
+      font-family: $font-family-base;
+      font-size: 20px;
+    }
+  }
+
+  .location {
+    border: 1px solid $btn-main-color;
+    margin-bottom: 20px;
+  }
+
+  .location-name {
+    margin: 20px 0 20px 50px;
+    text-align: center;
+    font-size: 28px;
+    font-family: $font-family-base;
+    color: $btn-main-color;
+  }
+
+  .lunch-groups-container {
+    margin: 10px 50px 20px;
+
+    &::after {
+      content: '';
+      display: block;
+      clear: left;
+    }
+  }
+
+  .lunch-group {
+    float: left;
+    width: 200px;
+    border: 1px solid #840440;
+    height: 90px;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: left;
+    background-color: #E06;
+    color: white;
+    box-shadow: 5px 5px 5px #ccc;
+    margin: 0 20px 20px 0;
+  }
+}

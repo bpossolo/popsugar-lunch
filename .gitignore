@@ -1,10 +1,11 @@
 test-classes
 gwt-unitCache
-war/lunch
-war/WEB-INF/appengine-generated
-war/WEB-INF/classes
-war/WEB-INF/deploy
+war
 *~
 .classpath
 .project
 .settings
+/target/
+bower
+node_modules
+.sass-cache

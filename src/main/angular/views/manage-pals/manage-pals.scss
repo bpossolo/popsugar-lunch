@@ -1,0 +1,58 @@
+.manage-pals-view {
+  width: 80%;
+  margin: 60px auto 0;
+  text-align: center;
+
+  .column {
+    display: inline-block;
+    vertical-align: top;
+    width: 500px;
+    min-height: 500px;
+    padding-top: 20px;
+  }
+
+  .all-users-container {
+    border-right: 1px solid #ccc;
+  }
+
+  .select-users-label {
+    font-family: $font-family-base;
+    font-size: 24px;
+    font-weight: normal;
+    color: $btn-main-color;
+  }
+
+  .selected-users {
+    min-height: 300px;
+  }
+
+  .user-list {
+    margin-top: 20px;
+  }
+
+  .user {
+    padding: 10px 20px;
+    width: 300px;
+    margin: 0 auto;
+    text-align: left;
+
+    .checkbox {
+      position: relative;
+      top: -4px;
+    }
+
+    .name {
+      font-size: 22px;
+      font-family: $font-family-base;
+      color: $btn-main-color;
+      padding-left: 10px;
+    }
+  }
+
+  .success {
+    font-family: $font-family-base;
+    font-size: 22px;
+    color: $success;
+    margin: 20px 0 0;
+  }
+}

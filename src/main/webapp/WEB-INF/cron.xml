@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+	<cron>
+		<url>/api/lunch/generate-groups?type=Regular</url>
+		<description>Generate lunch for four groups</description>
+		<schedule>first,third monday 10:00</schedule>
+		<timezone>America/Los_Angeles</timezone>
+	</cron>
+	<cron>
+		<url>/api/lunch/generate-groups?type=PopSugarPals</url>
+		<description>Generate popsugar pals groups</description>
+		<schedule>first monday 10:00</schedule>
+		<timezone>America/Los_Angeles</timezone>
+	</cron>
+</cronentries>

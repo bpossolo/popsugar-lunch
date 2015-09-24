@@ -1,0 +1,19 @@
+<!doctype html>
+<html ng-app="app">
+<head>
+	<title>PopSugar - Lunch for Four</title>
+	<link type="text/css" rel="stylesheet" href="/main.css">
+	<script type="text/javascript" src="/main.js"></script>
+</head>
+<body ng-class="{ home: isHome() }">
+	<noscript>
+		<div>You need to enable JavaScript in your browser to use Lunch for Four.</div>
+	</noscript>
+  <header>
+    <img class="logo" src="/assets/images/popsugar-logo-pink.png"/>
+    <a href="/"><span class="name">Lunch for Four</span></a>
+    <span class="manage-pals"><a href="/manage-pals">Manage Pals</a></span>
+  </header>
+  <div class="view-container" ui-view></div>
+</body>
+</html>

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<module rename-to="lunch">
-	<inherits name="com.google.gwt.user.User"/>
-	<source path="client"/>
-	<entry-point class="com.popsugar.lunch.ui.client.UiEntryPoint"/>
-</module>

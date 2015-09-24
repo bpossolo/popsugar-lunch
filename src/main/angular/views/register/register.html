@@ -1,0 +1,28 @@
+<div class="register-view" ng-controller="RegisterCtrl">
+  <p class="intro">
+    Sign up to meet new coworkers and add some variation to your lunch routine!
+  </p>
+  <form ng-submit="register()">
+    <div class="field">
+      <input type="text" name="name" ng-model="name" placeholder="Your full name...">
+    </div>
+    <div class="field">
+      <input type="text" name="email" ng-model="email" placeholder="Your email...">
+    </div>
+    <div class="field">
+      <select name="location" ng-model="location">
+        <option value="none">Where you work...</option>
+        <option value="SanFrancisco">San Francisco</option>
+        <option value="NewYork">New York</option>
+        <option value="LosAngeles">Los Angeles</option>
+      </select>
+    </div>
+    <input class="btn" type="submit" value="Sign Me Up!">
+  </form>
+</div>
+<div class="message error" ng-if="failure">
+  We need your name, email and location!
+</div>
+<div class="message success" ng-if="success">
+  Great! You&#39;ll receive an email every few weeks with a new lunch group!
+</div>
