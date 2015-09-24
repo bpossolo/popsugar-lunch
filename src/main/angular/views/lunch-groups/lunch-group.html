@@ -1,5 +1,15 @@
 <div class="lunch-group">
-  <div class="name" ng-repeat="user in group.users">
-    {{user.name}} <span ng-if="user.coordinator">*</span>
+  <div class="user" ng-repeat="user in group.users">
+    <a class="pingboard-link" ng-href="{{ user.pingboardUrl }}" target="_blank">
+      <div class="avatar"
+        ng-style="{ 'background-image': 'url(' + user.avatarUrl + ')'}">
+      </div>
+      <div class="name">
+        {{user.name}}
+      </div>
+      <div class="coordinator" ng-if="user.coordinator">
+        Coordinator
+      </div>
+    </a>
   </div>
 </div>

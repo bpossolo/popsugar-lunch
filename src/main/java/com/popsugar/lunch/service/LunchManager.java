@@ -21,6 +21,7 @@ import com.popsugar.lunch.dao.UserDAO;
 import com.popsugar.lunch.model.GroupType;
 import com.popsugar.lunch.model.Location;
 import com.popsugar.lunch.model.LunchGroup;
+import com.popsugar.lunch.model.PingboardUser;
 import com.popsugar.lunch.model.User;
 
 public class LunchManager {
@@ -38,6 +39,7 @@ public class LunchManager {
 	private LunchGroupDAO lunchGroupDao;
 	private UserDAO userDao;
 	private LunchPairDAO lunchPairDao;
+	private PingboardService pingboard;
 	private MemcacheService memcache;
 	
 	//-------------------------------------------------------------------------------------------
@@ -115,6 +117,26 @@ public class LunchManager {
 	
 	public void createPair(Long user1Key, Long user2Key) {
 		lunchPairDao.createPair(user1Key, user2Key);
+	}
+	
+	public void updateUsersWithPingboardData() {
+		List<User> users = userDao.getAllUsers();
+		List<PingboardUser> pingboardUsers = pingboard.getAllUsers();
+		Map<String,PingboardUser> map = pingboard.buildEmailUserMap(pingboardUsers);
+		
+		List<User> usersToUpdate = new ArrayList<User>();
+		
+		for (User user : users) {
+			String email = user.getEmail();
+			PingboardUser pingboardUser = map.get(email);
+			if (pingboardUser != null) {
+				user.setPingboardId(pingboardUser.getId());
+				user.setPingboardAvatarUrlSmall(pingboardUser.getAvatarUrlSmall());
+				usersToUpdate.add(user);
+			}
+		}
+		
+		userDao.updateUsers(usersToUpdate);
 	}
 	
 	//-------------------------------------------------------------------------------------------
@@ -243,6 +265,10 @@ public class LunchManager {
 	
 	public void setMemcache(MemcacheService memcache) {
 		this.memcache = memcache;
+	}
+	
+	public void setPingboard(PingboardService pingboard) {
+		this.pingboard = pingboard;
 	}
 
 }

@@ -21,6 +21,7 @@
   .location {
     border: 1px solid $btn-main-color;
     margin-bottom: 20px;
+    background-color: white;
   }
 
   .location-name {
@@ -33,25 +34,13 @@
 
   .lunch-groups-container {
     margin: 10px 50px 20px;
-
-    &::after {
-      content: '';
-      display: block;
-      clear: left;
-    }
   }
 
-  .lunch-group {
-    float: left;
-    width: 200px;
-    border: 1px solid #840440;
-    height: 90px;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: left;
-    background-color: #E06;
-    color: white;
-    box-shadow: 5px 5px 5px #ccc;
-    margin: 0 20px 20px 0;
+  .lunch-group-wrapper {
+    border-bottom: 1px solid black;
+
+    &:last-child {
+      border-bottom: 0;
+    }
   }
 }

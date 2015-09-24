@@ -15,6 +15,7 @@ public class User implements Serializable {
 	private Location location;
 	private List<GroupType> groupTypes;
 	private Long pingboardId;
+	private String pingboardAvatarUrlSmall;
 	
 	public User(){}
 	
@@ -112,6 +113,14 @@ public class User implements Serializable {
 	
 	public Long getPingboardId() {
 		return pingboardId;
+	}
+	
+	public String getPingboardAvatarUrlSmall() {
+		return pingboardAvatarUrlSmall;
+	}
+	
+	public void setPingboardAvatarUrlSmall(String pingboardAvatarUrlSmall) {
+		this.pingboardAvatarUrlSmall = pingboardAvatarUrlSmall;
 	}
 
 }

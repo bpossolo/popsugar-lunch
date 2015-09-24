@@ -115,4 +115,10 @@ public class LunchAPI {
 			throw new RuntimeException("Unable to execute task [" + className + "]", e);
 		}
 	}
+	
+	@GET
+	@Path("/update-users-with-pingboard-data")
+	public void updateUsersWithPingboardData() {
+		lunchManager.updateUsersWithPingboardData();
+	}
 }

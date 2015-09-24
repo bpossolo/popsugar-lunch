@@ -4,15 +4,12 @@
 
   <div class="week-and-legend">
     <div class="week">{{week}}</div>
-    <div class="legend">
-      Your group coordinator is marked with a star *
-    </div>
   </div>
 
   <div class="location" ng-if="sfLunchGroups.length">
     <h3 class="location-name">San Francisco</h3>
     <div class="lunch-groups-container">
-      <div
+      <div class="lunch-group-wrapper"
         ng-repeat="group in sfLunchGroups"
         ng-include="'/views/lunch-groups/lunch-group.html'">
       </div>
@@ -22,7 +19,7 @@
   <div class="location" ng-if="laLunchGroups.length">
     <h3 class="location-name">Los Angeles</h3>
     <div class="lunch-groups-container">
-      <div
+      <div class="lunch-group-wrapper"
         ng-repeat="group in laLunchGroups"
         ng-include="'lunch-group.html'">
       </div>
@@ -32,7 +29,7 @@
   <div class="location" ng-if="nyLunchGroups.length">
     <h3 class="location-name">New York</h3>
     <div class="lunch-groups-container">
-      <div
+      <div class="lunch-group-wrapper"
         ng-repeat="group in nyLunchGroups"
         ng-include="'lunch-group.html'">
       </div>

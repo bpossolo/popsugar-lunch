@@ -29,6 +29,7 @@ public class UserDAO {
 	public static final String LocationProp = "location";
 	public static final String GroupTypesProp = "groupTypes";
 	public static final String PingboardIdProp = "pingboardId";
+	public static final String PingboardAvatarUrlSmallProp = "pingboardAvatarUrlSmallProp";
 	
 	private DatastoreService datastore;
 	
@@ -46,6 +47,11 @@ public class UserDAO {
 			Key key = datastore.put(userEntity);
 			user.setKey(key.getId());
 		}
+	}
+	
+	public void updateUsers(List<User> users) {
+		List<Entity> entities = encodeEntities(users);
+		datastore.put(entities);
 	}
 	
 	public List<User> getAllUsers(){
@@ -81,11 +87,18 @@ public class UserDAO {
 	}
 	
 	private Entity encodeEntity(User user) {
-		Entity entity = new Entity(Kind);
+		Entity entity;
+		if (user.getKey() == null) {
+			entity = new Entity(Kind);
+		}
+		else {
+			entity = new Entity(Kind, user.getKey());
+		}
 		entity.setProperty(NameProp, user.getName());
 		entity.setProperty(ActiveProp, true);
 		entity.setProperty(EmailProp, user.getEmail());
 		entity.setProperty(PingboardIdProp, user.getPingboardId());
+		entity.setProperty(PingboardAvatarUrlSmallProp, user.getPingboardAvatarUrlSmall());
 		
 		if (user.getLocation() != null) {
 			entity.setProperty(LocationProp, user.getLocation().name());
@@ -106,6 +119,7 @@ public class UserDAO {
 		String location = (String)e.getProperty(LocationProp);
 		ArrayList<String> groupTypes = (ArrayList<String>)e.getProperty(GroupTypesProp);
 		Long pingboardId = (Long)e.getProperty(PingboardIdProp);
+		String pingboardAvatarUrlSmall = (String)e.getProperty(PingboardAvatarUrlSmallProp);
 		
 		User user = new User();
 		user.setKey(key);
@@ -113,6 +127,8 @@ public class UserDAO {
 		user.setEmail(email);
 		user.setActive(active);
 		user.setPingboardId(pingboardId);
+		user.setPingboardAvatarUrlSmall(pingboardAvatarUrlSmall);
+		
 		if (StringUtils.isNotBlank(location)) {
 			user.setLocation(Location.valueOf(location));
 		}
@@ -120,6 +136,15 @@ public class UserDAO {
 			user.setGroupTypes(GroupType.asEnumList(groupTypes));
 		}
 		return user;
+	}
+	
+	private ArrayList<Entity> encodeEntities(Collection<User> users) {
+		ArrayList<Entity> entities = new ArrayList<>(users.size());
+		for (User user : users) {
+			Entity e = encodeEntity(user);
+			entities.add(e);
+		}
+		return entities;
 	}
 	
 	private ArrayList<User> decodeEntities(Collection<Entity> entities) {

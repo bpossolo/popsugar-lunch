@@ -30,5 +30,8 @@ angular.module('app', ['ui.router']).config(['$injector', ($injector) ->
   $rootScope.isHome = ->
     $location.path() is '/'
 
+  $rootScope.isLunchGroups = ->
+    /^\/groups/.test $location.path()
+
   return
 ])

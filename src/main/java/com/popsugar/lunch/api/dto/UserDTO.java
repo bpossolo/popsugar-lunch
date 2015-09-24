@@ -12,11 +12,15 @@ public class UserDTO {
 	public String name;
 	public Location location;
 	public Boolean coordinator;
+	public Long pingboardId;
+	public String pingboardAvatarUrlSmall;
 	
 	public UserDTO(User user) {
 		key = user.getKey();
 		name = user.getName();
 		location = user.getLocation();
+		pingboardId = user.getPingboardId();
+		pingboardAvatarUrlSmall = user.getPingboardAvatarUrlSmall();
 	}
 	
 	public UserDTO(User user, Boolean coordinator){

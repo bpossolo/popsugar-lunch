@@ -133,6 +133,12 @@
 			<version>${jerseyVersion}</version>
 		</dependency>
 		<!-- End Jersey APIs -->
+		
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20140107</version>
+		</dependency>
 
 	</dependencies>
 
@@ -151,6 +157,11 @@
 				<version>${gaeVersion}</version>
 				<configuration>
 					<port>8888</port>
+					<jvmFlags>
+						<jvmFlag>-Xdebug</jvmFlag>
+						<jvmFlag>-Xrunjdwp:transport=dt_socket,address=1044,server=y,suspend=y</jvmFlag>
+					</jvmFlags>
+					<disableUpdateCheck>true</disableUpdateCheck>
 				</configuration>
 			</plugin>
 

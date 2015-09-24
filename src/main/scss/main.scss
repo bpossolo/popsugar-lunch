@@ -27,7 +27,8 @@ body {
   margin: 0;
   padding: 0;
 
-  &.home {
+  &.home,
+  &.lunch-groups {
     min-height: 600px;
     background-image: url('/assets/images/chopping-board-vegetables.jpg');
     background-size: cover;
@@ -110,5 +111,6 @@ header {
 
 @import '../angular/views/home/home';
 @import '../angular/views/lunch-groups/lunch-groups';
+@import '../angular/views/lunch-groups/lunch-group';
 @import '../angular/views/register/register';
 @import '../angular/views/manage-pals/manage-pals';

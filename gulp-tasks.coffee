@@ -7,6 +7,7 @@ concat = require 'gulp-concat'
 browserSync = require('browser-sync').create()
 sass = require 'gulp-ruby-sass'
 historyApiFallback = require 'connect-history-api-fallback'
+proxy = require './proxy'
 
 # -----------------------------------------------------------
 # Variables
@@ -84,7 +85,7 @@ gulp.task 'serve', ['build'], ->
     server:
       baseDir: "#{OutputDir}"
       index: 'index.html'
-      middleware: [historyApiFallback()]
+      middleware: [proxy, historyApiFallback()]
   browserSync.init config
   gulp.watch scssFiles, ['sass']
   gulp.watch clientScriptFiles, ['client-scripts']
