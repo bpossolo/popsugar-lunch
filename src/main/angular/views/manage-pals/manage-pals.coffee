@@ -4,10 +4,11 @@ angular.module('app').controller('ManagePalsCtrl', ['$scope', '$injector', ($sco
   $filter = $injector.get '$filter'
   filter = $filter('filter')
   $timeout = $injector.get '$timeout'
+  User = $injector.get 'User'
 
   promise = $http.get '/api/lunch/users'
-  promise.success (users) ->
-    $scope.allUsers = users
+  promise.success (userDtos) ->
+    $scope.allUsers = User.enhance userDtos
 
   $scope.numSelected = 0
 

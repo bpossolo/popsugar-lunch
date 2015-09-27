@@ -109,6 +109,13 @@ header {
   }
 }
 
+.avatar {
+  height: 100px;
+  width: 100px;
+  border: 1px solid white;
+  border-radius: 50%;
+}
+
 @import '../angular/views/home/home';
 @import '../angular/views/lunch-groups/lunch-groups';
 @import '../angular/views/lunch-groups/lunch-group';

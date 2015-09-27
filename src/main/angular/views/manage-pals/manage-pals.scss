@@ -15,6 +15,40 @@
     border-right: 1px solid #ccc;
   }
 
+  .user-list {
+    margin-top: 20px;
+  }
+
+  .all-users {
+    height: 70vh;
+    overflow-y: scroll;
+    margin-right: 20px;
+
+    .user {
+      padding: 10px 20px;
+      width: 300px;
+      margin: 0 auto;
+      text-align: left;
+
+      .checkbox {
+        vertical-align: middle;
+      }
+
+      .avatar {
+        vertical-align: middle;
+        margin: 0 10px;
+        display: inline-block;
+      }
+
+      .name {
+        font-family: $font-family-base;
+        font-size: 22px;
+        color: $btn-main-color;
+        vertical-align: middle;
+      }
+    }
+  }
+
   .select-users-label {
     font-family: $font-family-base;
     font-size: 24px;
@@ -24,28 +58,18 @@
 
   .selected-users {
     min-height: 300px;
-  }
 
-  .user-list {
-    margin-top: 20px;
-  }
+    .user {
+      display: inline-block;
+      margin: 0 20px;
+      vertical-align: top;
 
-  .user {
-    padding: 10px 20px;
-    width: 300px;
-    margin: 0 auto;
-    text-align: left;
-
-    .checkbox {
-      position: relative;
-      top: -4px;
-    }
-
-    .name {
-      font-size: 22px;
-      font-family: $font-family-base;
-      color: $btn-main-color;
-      padding-left: 10px;
+      .name {
+        font-family: $font-family-base;
+        font-size: 18px;
+        color: $btn-main-color;
+        margin-top: 10px;
+      }
     }
   }
 

@@ -11,6 +11,9 @@
         ng-repeat="user in allUsers | filter:{name: search}"
         ng-click="toggleUser(user)">
         <input class="checkbox" type="checkbox" ng-checked="user.selected">
+        <div class="avatar"
+          ng-style="{ 'background-image': 'url(' + user.avatarUrl + ')'}">
+        </div>
         <span class="name">{{user.name}}</span>
       </div>
     </div>
@@ -20,6 +23,9 @@
     <h3 class="select-users-label">Select 2 users to buddy up</h3>
     <div class="selected-users user-list">
       <div class="user" ng-repeat="user in allUsers | filter:{selected: true}">
+        <div class="avatar"
+          ng-style="{ 'background-image': 'url(' + user.avatarUrl + ')'}">
+        </div>
         <span class="name">{{user.name}}</span>
       </div>
     </div>
