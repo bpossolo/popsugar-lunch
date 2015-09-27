@@ -11,10 +11,12 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.popsugar.lunch.WebAppInitializer;
@@ -57,8 +59,9 @@ public class LunchAPI {
 
 	@GET
 	@Path("/generate-groups")
-	public void generateLunchGroups(@QueryParam("type") GroupType type) {
+	public Response generateLunchGroups(@QueryParam("type") GroupType type) {
 		lunchManager.generateLunchGroups(type);
+		return Response.status(200).entity("Lunch groups generated").build();
 	}
 	
 	@GET
@@ -102,7 +105,7 @@ public class LunchAPI {
 	
 	@GET
 	@Path("/upgrade")
-	public void upgrade(@Context ServletContext servletContext, @QueryParam("task") int taskNum) {
+	public Response upgrade(@Context ServletContext servletContext, @QueryParam("task") int taskNum) {
 		String className = UpgradeTask.class.getPackage().getName() + ".Task" + taskNum;
 		log.log(Level.INFO, "Executing upgrade task {0}", className);
 		try{
@@ -110,6 +113,7 @@ public class LunchAPI {
 			task.setServletContext(servletContext);
 			task.setDatastore(datastore);
 			task.run();
+			return Response.status(200).entity("Upgrade task " + taskNum + " complete").build();
 		}
 		catch(ClassNotFoundException | IllegalAccessException | InstantiationException e){
 			throw new RuntimeException("Unable to execute task [" + className + "]", e);
@@ -117,8 +121,16 @@ public class LunchAPI {
 	}
 	
 	@GET
+	@Path("/unsubscribe/{userId}")
+	public Response unsubscribeFromLunchForFour(@PathParam("userId") Long userId) {
+		lunchManager.deactivateUser(userId);
+		return Response.status(200).entity("Unsubscribed").build();
+	}
+	
+	@GET
 	@Path("/update-users-with-pingboard-data")
-	public void updateUsersWithPingboardData() {
+	public Response updateUsersWithPingboardData() {
 		lunchManager.updateUsersWithPingboardData();
+		return Response.status(200).entity("Users updated with pingboard data").build();
 	}
 }

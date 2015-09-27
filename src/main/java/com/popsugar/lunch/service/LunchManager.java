@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Message;
 import com.google.appengine.api.mail.MailServiceFactory;
@@ -113,6 +114,17 @@ public class LunchManager {
 		}
 		
 		return null;
+	}
+	
+	public void deactivateUser(Long userId) {
+		try {
+			User user = userDao.getUserById(userId);
+			user.setActive(false);
+			userDao.updateUser(user);
+		}
+		catch(EntityNotFoundException e) {
+			// TODO do we care?
+		}
 	}
 	
 	public void createPair(Long user1Key, Long user2Key) {
