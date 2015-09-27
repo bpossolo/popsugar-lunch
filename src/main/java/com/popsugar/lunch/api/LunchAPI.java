@@ -23,7 +23,7 @@ import com.popsugar.lunch.WebAppInitializer;
 import com.popsugar.lunch.api.dto.CreatePairDTO;
 import com.popsugar.lunch.api.dto.CreateUserDTO;
 import com.popsugar.lunch.api.dto.LunchGroupDTO;
-import com.popsugar.lunch.api.dto.MyLocationDTO;
+import com.popsugar.lunch.api.dto.LocationDTO;
 import com.popsugar.lunch.api.dto.UserDTO;
 import com.popsugar.lunch.model.GroupType;
 import com.popsugar.lunch.model.Location;
@@ -49,11 +49,11 @@ public class LunchAPI {
 	
 	@GET
 	@Path("/my-location")
-	public MyLocationDTO getMyLocation(@Context HttpServletRequest request){
+	public LocationDTO getMyLocation(@Context HttpServletRequest request){
 		String city = request.getHeader("X-AppEngine-City");
 		String state = request.getHeader("X-AppEngine-Region");
 		Location location = lunchManager.estimateUserLocation(city, state);
-		MyLocationDTO dto = new MyLocationDTO(city, state, location);
+		LocationDTO dto = new LocationDTO(city, state, location);
 		return dto;
 	}
 
