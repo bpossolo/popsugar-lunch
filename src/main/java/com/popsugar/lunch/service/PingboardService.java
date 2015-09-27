@@ -1,7 +1,6 @@
 package com.popsugar.lunch.service;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -150,10 +149,6 @@ public class PingboardService {
 		return map;
 	}
 	
-	public String getAccessToken() {
-		return accessToken;
-	}
-	
 	private String addAccessToken(String url) {
 		url = UrlUtil.addParam(url, "access_token", accessToken);
 		return url;
@@ -172,11 +167,14 @@ public class PingboardService {
 		return true;
 	}
 	
+	String getAccessToken() {
+		return accessToken;
+	}
+	
 	void initAccessToken() {
 		try {
 			if (isAccessTokenExpired()) {
-				//String encodedEmail = URLEncoder.encode(pingboardAuthUsername, UTF8);
-				String encodedEmail = pingboardAuthUsername;
+				String encodedEmail = URLEncoder.encode(pingboardAuthUsername, UTF8);
 				String encodedPassword = URLEncoder.encode(pingboardAuthPassword, UTF8);
 				
 				String url = BaseUrl + "/oauth/token";
@@ -185,7 +183,7 @@ public class PingboardService {
 				url = UrlUtil.addParam(url, "password", encodedPassword);
 				
 				HTTPRequest request = new HTTPRequest(new URL(url), HTTPMethod.POST);
-				request.getFetchOptions().setDeadline(10d);
+				request.getFetchOptions().setDeadline(10.0);
 				HTTPResponse response = urlFetchService.fetch(request);
 				
 				byte[] content = response.getContent();
@@ -196,9 +194,6 @@ public class PingboardService {
 				accessTokenExpirationInSeconds = json.getLong("expires_in");
 				accessTokenTimestamp = new Date();
 			}
-		}
-		catch(UnsupportedEncodingException e) {
-			throw new RuntimeException("Failed to encode email/password", e);
 		}
 		catch(IOException e){
 			throw new RuntimeException("Failed to get access token", e);
