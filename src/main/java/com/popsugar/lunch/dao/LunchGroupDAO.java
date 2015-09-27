@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
@@ -16,6 +14,7 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.popsugar.lunch.model.GroupType;
 import com.popsugar.lunch.model.Location;
 import com.popsugar.lunch.model.LunchGroup;
+import com.popsugar.lunch.util.DatastoreUtil;
 
 public class LunchGroupDAO {
 	
@@ -65,12 +64,8 @@ public class LunchGroupDAO {
 		Entity e = new Entity(Kind);
 		e.setProperty(CoordinatorKeyProp, group.getCoordinatorKey());
 		e.setProperty(UserKeysProp, group.getUserKeys());
-		if (group.getType() != null) {
-			e.setProperty(TypeProp, group.getType().name());
-		}
-		if (group.getLocation() != null) {
-			e.setProperty(LocationProp, group.getLocation().name());
-		}
+		DatastoreUtil.setEnum(e, TypeProp, group.getType());
+		DatastoreUtil.setEnum(e, LocationProp, group.getLocation());
 		return e;
 	}
 	
@@ -83,24 +78,20 @@ public class LunchGroupDAO {
 		return entities;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private LunchGroup decodeEntity(Entity e){
 		Long key = e.getKey().getId();
 		Long coordinatorKey = (Long)e.getProperty(CoordinatorKeyProp);
-		String location = (String)e.getProperty(LocationProp);
-		String type = (String)e.getProperty(TypeProp);
+		Location location = DatastoreUtil.getEnum(e, LocationProp, Location.class);
+		GroupType type = DatastoreUtil.getEnum(e, TypeProp, GroupType.class);
+		@SuppressWarnings("unchecked")
 		ArrayList<Long> userKeys = (ArrayList<Long>)e.getProperty(UserKeysProp);
 		
 		LunchGroup group = new LunchGroup();
 		group.setKey(key);
 		group.setCoordinatorKey(coordinatorKey);
 		group.setUserKeys(userKeys);
-		if (StringUtils.isNotBlank(location)) {
-			group.setLocation(Location.valueOf(location));
-		}
-		if (StringUtils.isNotBlank(type)) {
-			group.setType(GroupType.valueOf(type));
-		}
+		group.setLocation(location);
+		group.setType(type);
 		
 		return group;
 	}
