@@ -35,7 +35,6 @@ import com.popsugar.lunch.service.LunchManager;
 import com.popsugar.lunch.upgrade.UpgradeTask;
 
 @Path("/lunch")
-@Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class LunchAPI {
 	
@@ -51,6 +50,7 @@ public class LunchAPI {
 	
 	@GET
 	@Path("/my-location")
+	@Produces(MediaType.APPLICATION_JSON)
 	public LocationDTO getMyLocation(@Context HttpServletRequest request){
 		String city = request.getHeader("X-AppEngine-City");
 		String state = request.getHeader("X-AppEngine-Region");
@@ -61,6 +61,7 @@ public class LunchAPI {
 
 	@GET
 	@Path("/generate-groups")
+	@Produces(MediaType.TEXT_PLAIN)
 	public Response generateLunchGroups(@QueryParam("type") GroupType type) {
 		lunchManager.generateLunchGroups(type);
 		return Response.status(200).entity("Lunch groups generated").build();
@@ -68,6 +69,7 @@ public class LunchAPI {
 	
 	@GET
 	@Path("/users")
+	@Produces(MediaType.APPLICATION_JSON)
 	public List<UserDTO> getUsers() {
 		List<User> users = lunchManager.getActiveUsersWithBuddies();
 		List<UserDTO> result = new ArrayList<>(users.size());
@@ -80,12 +82,15 @@ public class LunchAPI {
 	
 	@POST
 	@Path("/create-user")
-	public void createUser(CreateUserDTO dto) {
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response createUser(CreateUserDTO dto) {
 		lunchManager.createUser(dto.name, dto.email, dto.location);
+		return Response.status(200).entity("User created").build();
 	}
 	
 	@GET
 	@Path("/groups")
+	@Produces(MediaType.APPLICATION_JSON)
 	public List<LunchGroupDTO> getLunchGroups(@QueryParam("type") GroupType type) {
 		
 		String week = lunchManager.getCurrentWeek();
@@ -101,6 +106,7 @@ public class LunchAPI {
 	
 	@POST
 	@Path("/buddies")
+	@Produces(MediaType.TEXT_PLAIN)
 	public Response linkUsers(BuddiesDTO dto) throws EntityNotFoundException {
 		lunchManager.linkUsers(dto.userAKey, dto.userBKey);
 		return Response.status(200).entity("Users linked").build();
@@ -108,6 +114,7 @@ public class LunchAPI {
 	
 	@DELETE
 	@Path("/buddies")
+	@Produces(MediaType.TEXT_PLAIN)
 	public Response unlinkUsers(BuddiesDTO dto) throws EntityNotFoundException {
 		lunchManager.unlinkUsers(dto.userAKey, dto.userBKey);
 		return Response.status(200).entity("Users unlinked").build();
@@ -115,6 +122,7 @@ public class LunchAPI {
 	
 	@GET
 	@Path("/upgrade")
+	@Produces(MediaType.TEXT_PLAIN)
 	public Response upgrade(@Context ServletContext servletContext, @QueryParam("task") int taskNum) {
 		String className = UpgradeTask.class.getPackage().getName() + ".Task" + taskNum;
 		log.log(Level.INFO, "Executing upgrade task {0}", className);
@@ -132,6 +140,7 @@ public class LunchAPI {
 	
 	@GET
 	@Path("/unsubscribe/{userId}")
+	@Produces(MediaType.TEXT_PLAIN)
 	public Response unsubscribeFromLunchForFour(@PathParam("userId") Long userId) {
 		lunchManager.deactivateUser(userId);
 		return Response.status(200).entity("Unsubscribed").build();
@@ -139,6 +148,7 @@ public class LunchAPI {
 	
 	@GET
 	@Path("/update-users-with-pingboard-data")
+	@Produces(MediaType.TEXT_PLAIN)
 	public Response updateUsersWithPingboardData() {
 		lunchManager.updateUsersWithPingboardData();
 		return Response.status(200).entity("Users updated with pingboard data").build();
