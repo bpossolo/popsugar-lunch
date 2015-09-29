@@ -32,7 +32,6 @@ public class WebAppInitializer implements ServletContextListener {
 		PingboardService pingboardService = new PingboardService();
 		pingboardService.setUrlFetchService(urlFetchService);
 		pingboardService.setMemcache(memcache);
-		pingboardService.primeCache();
 		
 		LunchGroupDAO lunchGroupDao = new LunchGroupDAO();
 		lunchGroupDao.setDatastore(datastore);
