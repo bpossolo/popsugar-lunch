@@ -37,7 +37,7 @@ public class PingboardService {
 	
 	private MemcacheService memcache;
 	private URLFetchService urlFetchService;
-	private long accessTokenExpirationInSeconds; 
+	private long accessTokenExpirationInSeconds;
 	private Date accessTokenTimestamp;
 	private String accessToken;
 	
