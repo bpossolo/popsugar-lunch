@@ -13,8 +13,12 @@ angular.module('app').controller('ManagePalsCtrl', ['$scope', '$injector', ($sco
   $scope.numSelected = 0
 
   suppressMessage = ->
-    $scope.success = false
+    $scope.success = null
     $scope.error = false
+
+  $scope.userFilter = (user, index, users) ->
+    regexp = new RegExp $scope.search, 'i'
+    return regexp.test(user.name) or regexp.test(user.buddy?.name)
 
   $scope.toggleUser = (user) ->
     if user.selected
@@ -29,13 +33,35 @@ angular.module('app').controller('ManagePalsCtrl', ['$scope', '$injector', ($sco
       selected: true
     selectedUsers = filter $scope.allUsers, criteria
     data =
-      user1Key: selectedUsers[0].key
-      user2Key: selectedUsers[1].key
-    promise = $http.post '/api/lunch/create-pair', data
+      userAKey: selectedUsers[0].key
+      userBKey: selectedUsers[1].key
+    promise = $http.post '/api/lunch/buddies', data
     promise.success ->
       selectedUsers[0].selected = false
+      selectedUsers[0].buddyKey = selectedUsers[1].key
+      selectedUsers[0].buddy = selectedUsers[1]
       selectedUsers[1].selected = false
-      $scope.success = true
+      selectedUsers[1].buddyKey = selectedUsers[0].key
+      selectedUsers[1].buddy = selectedUsers[0]
+      $scope.success = 'Users linked!'
+      $timeout suppressMessage, 5000
+
+  $scope.unlinkUsers = ->
+    criteria =
+      selected: true
+    selectedUsers = filter $scope.allUsers, criteria
+    data =
+      userAKey: selectedUsers[0].key
+      userBKey: selectedUsers[1].key
+    promise = $http.delete '/api/lunch/buddies', data
+    promise.success ->
+      selectedUsers[0].selected = false
+      selectedUsers[0].buddyKey = null
+      selectedUsers[0].buddy = null
+      selectedUsers[1].selected = false
+      selectedUsers[1].buddyKey = null
+      selectedUsers[1].buddy = null
+      $scope.success = 'Users unlinked!'
       $timeout suppressMessage, 5000
 
   return

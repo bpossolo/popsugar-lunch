@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -21,8 +22,8 @@ import javax.ws.rs.core.Response;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.popsugar.lunch.WebAppInitializer;
+import com.popsugar.lunch.api.dto.BuddiesDTO;
 import com.popsugar.lunch.api.dto.CreateUserDTO;
-import com.popsugar.lunch.api.dto.LinkBuddiesDTO;
 import com.popsugar.lunch.api.dto.LocationDTO;
 import com.popsugar.lunch.api.dto.LunchGroupDTO;
 import com.popsugar.lunch.api.dto.UserDTO;
@@ -68,10 +69,10 @@ public class LunchAPI {
 	@GET
 	@Path("/users")
 	public List<UserDTO> getUsers() {
-		List<User> users = lunchManager.getActiveUsers();
+		List<User> users = lunchManager.getActiveUsersWithBuddies();
 		List<UserDTO> result = new ArrayList<>(users.size());
 		for (User user : users) {
-			UserDTO dto = new UserDTO(user);
+			UserDTO dto = UserDTO.Builder.user(user).build();
 			result.add(dto);
 		}
 		return result;
@@ -99,9 +100,17 @@ public class LunchAPI {
 	}
 	
 	@POST
-	@Path("/link-buddies")
-	public void linkBuddies(LinkBuddiesDTO dto) throws EntityNotFoundException {
-		lunchManager.linkBuddies(dto.userAKey, dto.userBKey);
+	@Path("/buddies")
+	public Response linkUsers(BuddiesDTO dto) throws EntityNotFoundException {
+		lunchManager.linkUsers(dto.userAKey, dto.userBKey);
+		return Response.status(200).entity("Users linked").build();
+	}
+	
+	@DELETE
+	@Path("/buddies")
+	public Response unlinkUsers(BuddiesDTO dto) throws EntityNotFoundException {
+		lunchManager.unlinkUsers(dto.userAKey, dto.userBKey);
+		return Response.status(200).entity("Users unlinked").build();
 	}
 	
 	@GET

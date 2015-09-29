@@ -56,23 +56,49 @@ public class UserDAO {
 		// TODO reactive the user if one already exists and update name
 	}
 	
-	public void linkBuddies(Long userAId, Long userBId) throws EntityNotFoundException {
+	public void linkUsers(Long userAId, Long userBId) throws EntityNotFoundException {
 		Key userAKey = KeyFactory.createKey(Kind, userAId);
 		Key userBKey = KeyFactory.createKey(Kind, userBId);
-		
-		Entity userA = datastore.get(userAKey);
-		Entity userB = datastore.get(userBKey);
-		
-		userA.setProperty(BuddyKeyProp, userBId);
-		userB.setProperty(BuddyKeyProp, userAId);
-		
-		List<Entity> users = new ArrayList<>(2);
-		users.add(userA);
-		users.add(userB);
 		
 		TransactionOptions txOptions = TransactionOptions.Builder.withXG(true);
 		Transaction tx = datastore.beginTransaction(txOptions);
 		try {
+			Entity userA = datastore.get(userAKey);
+			Entity userB = datastore.get(userBKey);
+			
+			userA.setProperty(BuddyKeyProp, userBId);
+			userB.setProperty(BuddyKeyProp, userAId);
+			
+			List<Entity> users = new ArrayList<>(2);
+			users.add(userA);
+			users.add(userB);
+			
+			datastore.put(tx, users);
+			tx.commit();
+		}
+		catch(DatastoreFailureException | ConcurrentModificationException e){
+			tx.rollback();
+			throw e;
+		}
+	}
+	
+	public void unlinkUsers(Long userAId, Long userBId) throws EntityNotFoundException {
+		Key userAKey = KeyFactory.createKey(Kind, userAId);
+		Key userBKey = KeyFactory.createKey(Kind, userBId);
+		
+		TransactionOptions txOptions = TransactionOptions.Builder.withXG(true);
+		Transaction tx = datastore.beginTransaction(txOptions);
+		try {
+			Entity userA = datastore.get(userAKey);
+			Entity userB = datastore.get(userBKey);
+			
+			userA.setProperty(BuddyKeyProp, null);
+			userB.setProperty(BuddyKeyProp, null);
+			
+			List<Entity> users = new ArrayList<>(2);
+			users.add(userA);
+			users.add(userB);
+			
 			datastore.put(tx, users);
 			tx.commit();
 		}

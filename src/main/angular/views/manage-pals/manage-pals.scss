@@ -40,11 +40,22 @@
         display: inline-block;
       }
 
+      .names {
+        display: inline-block;
+        vertical-align: middle;
+      }
+
       .name {
         font-family: $font-family-base;
         font-size: 22px;
         color: $btn-main-color;
-        vertical-align: middle;
+      }
+
+      .buddy {
+        font-family: $font-family-base;
+        font-size: 16px;
+        color: $light-grey;
+        margin-left: 10px;
       }
     }
   }

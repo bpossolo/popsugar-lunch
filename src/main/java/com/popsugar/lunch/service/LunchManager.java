@@ -45,8 +45,16 @@ public class LunchManager {
 	//Public methods
 	//-------------------------------------------------------------------------------------------
 	
-	public List<User> getActiveUsers() {
-		return userDao.getAllUsers();
+	public List<User> getActiveUsersWithBuddies() {
+		Map<Long,User> map = userDao.getAllUsersMappedByKey();
+		List<User> users = new ArrayList<>(map.values());
+		for (User user : users) {
+			if (user.getBuddyKey() != null) {
+				User buddy = map.get(user.getBuddyKey());
+				user.setBuddy(buddy);
+			}
+		}
+		return users;
 	}
 	
 	public User createUser(String name, String email, Location location) {
@@ -130,8 +138,12 @@ public class LunchManager {
 		}
 	}
 	
-	public void linkBuddies(Long userAKey, Long userBKey) throws EntityNotFoundException {
-		userDao.linkBuddies(userAKey, userBKey);
+	public void linkUsers(Long userAKey, Long userBKey) throws EntityNotFoundException {
+		userDao.linkUsers(userAKey, userBKey);
+	}
+	
+	public void unlinkUsers(Long userAKey, Long userBKey) throws EntityNotFoundException {
+		userDao.unlinkUsers(userAKey, userBKey);
 	}
 	
 	public void updateUsersWithPingboardData() {

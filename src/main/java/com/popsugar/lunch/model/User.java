@@ -17,6 +17,7 @@ public class User implements Serializable {
 	private Long pingboardId;
 	private String pingboardAvatarUrlSmall;
 	private Long buddyKey;
+	private User buddy;
 	
 	public User(){}
 	
@@ -130,6 +131,14 @@ public class User implements Serializable {
 	
 	public void setBuddyKey(Long buddyKey) {
 		this.buddyKey = buddyKey;
+	}
+	
+	public User getBuddy() {
+		return buddy;
+	}
+	
+	public void setBuddy(User buddy) {
+		this.buddy = buddy;
 	}
 
 }

@@ -14,9 +14,9 @@ public class UserDTO {
 	public Boolean coordinator;
 	public Long pingboardId;
 	public String pingboardAvatarUrlSmall;
-	public Long buddyKey;
-	
-	public UserDTO(User user) {
+	public UserDTO buddy;
+
+	private UserDTO(User user){
 		key = user.getKey();
 		name = user.getName();
 		location = user.getLocation();
@@ -24,8 +24,30 @@ public class UserDTO {
 		pingboardAvatarUrlSmall = user.getPingboardAvatarUrlSmall();
 	}
 	
-	public UserDTO(User user, Boolean coordinator){
-		this(user);
-		this.coordinator = coordinator;
+	public static class Builder {
+		
+		private UserDTO dto;
+		
+		public static Builder user(User user) {
+			Builder builder = new Builder();
+			builder.dto = new UserDTO(user);
+			if (user.getBuddy() != null) {
+				builder.dto.buddy = new UserDTO(user.getBuddy());
+			}
+			return builder;
+		}
+		
+		public static Builder user(User user, Boolean coordinator) {
+			return user(user).coordinator(coordinator);
+		}
+		
+		public Builder coordinator(Boolean coordinator) {
+			dto.coordinator = coordinator;
+			return this;
+		}
+		
+		public UserDTO build() {
+			return dto;
+		}
 	}
 }
