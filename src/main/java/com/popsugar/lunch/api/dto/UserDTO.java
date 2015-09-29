@@ -14,6 +14,7 @@ public class UserDTO {
 	public Boolean coordinator;
 	public Long pingboardId;
 	public String pingboardAvatarUrlSmall;
+	public Long buddyKey;
 	
 	public UserDTO(User user) {
 		key = user.getKey();

@@ -10,7 +10,6 @@ import com.google.appengine.tools.development.testing.LocalMailServiceTestConfig
 import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.popsugar.lunch.dao.LunchGroupDAO;
-import com.popsugar.lunch.dao.LunchPairDAO;
 import com.popsugar.lunch.dao.UserDAO;
 
 public class LunchManagerTest {
@@ -22,7 +21,6 @@ public class LunchManagerTest {
 	private LunchManager manager;
 	private UserDAO userDao;
 	private LunchGroupDAO lunchGroupDao;
-	private LunchPairDAO lunchPairDao;
 	private MemcacheService memcache;
 
 	@Before
@@ -32,12 +30,10 @@ public class LunchManagerTest {
 		
 		userDao = Mockito.mock(UserDAO.class);
 		lunchGroupDao = Mockito.mock(LunchGroupDAO.class);
-		lunchPairDao = Mockito.mock(LunchPairDAO.class);
 		
 		manager = new LunchManager();
 		manager.setUserDao(userDao);
 		manager.setLunchGroupDao(lunchGroupDao);
-		manager.setLunchPairDao(lunchPairDao);
 		manager.setMemcache(memcache);
 	}
 

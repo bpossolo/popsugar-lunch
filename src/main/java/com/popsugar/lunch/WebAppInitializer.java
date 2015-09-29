@@ -11,7 +11,6 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.popsugar.lunch.dao.LunchGroupDAO;
-import com.popsugar.lunch.dao.LunchPairDAO;
 import com.popsugar.lunch.dao.UserDAO;
 import com.popsugar.lunch.service.LunchManager;
 import com.popsugar.lunch.service.PingboardService;
@@ -41,14 +40,10 @@ public class WebAppInitializer implements ServletContextListener {
 		UserDAO userDao = new UserDAO();
 		userDao.setDatastore(datastore);
 		
-		LunchPairDAO lunchPairDao = new LunchPairDAO();
-		lunchPairDao.setDatastore(datastore);
-		
 		LunchManager lunchManager = new LunchManager();
 		lunchManager.setMemcache(memcache);
 		lunchManager.setLunchGroupDao(lunchGroupDao);
 		lunchManager.setUserDao(userDao);
-		lunchManager.setLunchPairDao(lunchPairDao);
 		lunchManager.setPingboard(pingboardService);
 		
 		ServletContext servletContext = contextEvent.getServletContext();

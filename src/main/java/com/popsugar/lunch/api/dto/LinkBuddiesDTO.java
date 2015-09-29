@@ -2,11 +2,11 @@ package com.popsugar.lunch.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CreatePairDTO {
+public class LinkBuddiesDTO {
 	
 	@JsonProperty
-	public Long user1Key;
+	public Long userAKey;
 	
 	@JsonProperty
-	public Long user2Key;
+	public Long userBKey;
 }

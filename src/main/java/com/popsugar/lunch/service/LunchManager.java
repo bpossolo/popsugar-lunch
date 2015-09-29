@@ -17,7 +17,6 @@ import com.google.appengine.api.mail.MailService.Message;
 import com.google.appengine.api.mail.MailServiceFactory;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.popsugar.lunch.dao.LunchGroupDAO;
-import com.popsugar.lunch.dao.LunchPairDAO;
 import com.popsugar.lunch.dao.UserDAO;
 import com.popsugar.lunch.model.GroupType;
 import com.popsugar.lunch.model.Location;
@@ -39,7 +38,6 @@ public class LunchManager {
 	
 	private LunchGroupDAO lunchGroupDao;
 	private UserDAO userDao;
-	private LunchPairDAO lunchPairDao;
 	private PingboardService pingboard;
 	private MemcacheService memcache;
 	
@@ -52,7 +50,12 @@ public class LunchManager {
 	}
 	
 	public User createUser(String name, String email, Location location) {
+		PingboardUser pingboardUser = pingboard.getUserByEmail(email);
 		User user = new User(name, email, location);
+		if (pingboardUser != null) {
+			user.setPingboardId(pingboardUser.getId());
+			user.setPingboardAvatarUrlSmall(pingboardUser.getAvatarUrlSmall());
+		}
 		userDao.createUser(user);
 		return user;
 	}
@@ -76,7 +79,7 @@ public class LunchManager {
 			groups = lunchGroupDao.getLunchGroups(groupType);
 			
 			// populate the groups with the user objects
-			Map<Long,User> userMap = userDao.getAllUsersMapped();
+			Map<Long,User> userMap = userDao.getAllUsersMappedByKey();
 			for( LunchGroup group : groups ){
 				for( Long userKey : group.getUserKeys() ){
 					User user = userMap.get(userKey);
@@ -127,8 +130,8 @@ public class LunchManager {
 		}
 	}
 	
-	public void createPair(Long user1Key, Long user2Key) {
-		lunchPairDao.createPair(user1Key, user2Key);
+	public void linkBuddies(Long userAKey, Long userBKey) throws EntityNotFoundException {
+		userDao.linkBuddies(userAKey, userBKey);
 	}
 	
 	public void updateUsersWithPingboardData() {
@@ -269,10 +272,6 @@ public class LunchManager {
 	
 	public void setUserDao(UserDAO userDao) {
 		this.userDao = userDao;
-	}
-	
-	public void setLunchPairDao(LunchPairDAO lunchPairDao) {
-		this.lunchPairDao = lunchPairDao;
 	}
 	
 	public void setMemcache(MemcacheService memcache) {

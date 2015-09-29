@@ -19,11 +19,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.popsugar.lunch.WebAppInitializer;
-import com.popsugar.lunch.api.dto.CreatePairDTO;
 import com.popsugar.lunch.api.dto.CreateUserDTO;
-import com.popsugar.lunch.api.dto.LunchGroupDTO;
+import com.popsugar.lunch.api.dto.LinkBuddiesDTO;
 import com.popsugar.lunch.api.dto.LocationDTO;
+import com.popsugar.lunch.api.dto.LunchGroupDTO;
 import com.popsugar.lunch.api.dto.UserDTO;
 import com.popsugar.lunch.model.GroupType;
 import com.popsugar.lunch.model.Location;
@@ -98,9 +99,9 @@ public class LunchAPI {
 	}
 	
 	@POST
-	@Path("/create-pair")
-	public void createPair(CreatePairDTO dto) {
-		lunchManager.createPair(dto.user1Key, dto.user2Key);
+	@Path("/link-buddies")
+	public void linkBuddies(LinkBuddiesDTO dto) throws EntityNotFoundException {
+		lunchManager.linkBuddies(dto.userAKey, dto.userBKey);
 	}
 	
 	@GET

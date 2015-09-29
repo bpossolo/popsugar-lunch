@@ -76,6 +76,34 @@ public class PingboardService {
 		return (HashMap<Long,PingboardUser>)memcache.get(PingboardUsersEmailMapMemcacheKey);
 	}
 	
+	public PingboardUser getUserByEmail(String email) {
+		try {
+			initAccessToken();
+			String encodedEmail = URLEncoder.encode(email, UTF8);
+			
+			String url = BaseApiUrl + "/users";
+			url = addAccessToken(url);
+			url = UrlUtil.addParam(url, "email", encodedEmail);
+			
+			HTTPResponse response = urlFetchService.fetch(new URL(url));
+			
+			byte[] content = response.getContent();
+			String jsonStr = new String(content, UTF8);
+			JSONObject json = new JSONObject(jsonStr);
+			JSONArray users = json.getJSONArray("users");
+			List<PingboardUser> pingboardUsers = decodeUsers(users);
+			if (pingboardUsers.isEmpty()) {
+				return null;
+			}
+			else {
+				return pingboardUsers.get(0);
+			}
+		}
+		catch(IOException | JSONException e) {
+			throw new RuntimeException("Failed to get user by email", e);
+		}
+	}
+	
 	public ArrayList<PingboardUser> getAllUsers() {
 		int pageNum = 1;
 		ArrayList<PingboardUser> allUsers = new ArrayList<>();
@@ -103,26 +131,33 @@ public class PingboardService {
 			String jsonStr = new String(content, UTF8);
 			JSONObject json = new JSONObject(jsonStr);
 			JSONArray users = json.getJSONArray("users");
-			
-			List<PingboardUser> pingboardUsers = new ArrayList<>(users.length());
-			
-			for (int i = 0; i < users.length(); i++ ){
-				JSONObject user = users.getJSONObject(i);
-				PingboardUser pingboardUser = new PingboardUser();
-				pingboardUser.setId(Long.valueOf(user.getString("id")));
-				pingboardUser.setEmail(user.getString("email"));
-				JSONObject avatarUrls = user.optJSONObject("avatar_urls");
-				if (avatarUrls != null) {
-					pingboardUser.setAvatarUrlSmall(avatarUrls.optString("small"));
-				}
-				pingboardUsers.add(pingboardUser);
-			}
-			
+			List<PingboardUser> pingboardUsers = decodeUsers(users);
 			return pingboardUsers;
 		}
 		catch(IOException | JSONException e){
 			throw new RuntimeException("Failed to get pingboard users", e);
 		}
+	}
+	
+	private List<PingboardUser> decodeUsers(JSONArray jsonUsers) {
+		List<PingboardUser> users = new ArrayList<>(jsonUsers.length());
+		for (int i = 0; i < jsonUsers.length(); i++ ){
+			JSONObject jsonUser = jsonUsers.getJSONObject(i);
+			PingboardUser user = decodeUser(jsonUser);
+			users.add(user);
+		}
+		return users;
+	}
+	
+	private PingboardUser decodeUser(JSONObject jsonUser) {
+		PingboardUser user = new PingboardUser();
+		user.setId(Long.valueOf(jsonUser.getString("id")));
+		user.setEmail(jsonUser.getString("email"));
+		JSONObject avatarUrls = jsonUser.optJSONObject("avatar_urls");
+		if (avatarUrls != null) {
+			user.setAvatarUrlSmall(avatarUrls.optString("small"));
+		}
+		return user;
 	}
 	
 	public void setUrlFetchService(URLFetchService urlFetchService) {
