@@ -7,7 +7,7 @@
 	<groupId>com.popsugar</groupId>
 	<artifactId>lunch</artifactId>
 	<packaging>war</packaging>
-	<version>4</version>
+	<version>5</version>
 	<name>PopSugar Lunch</name>
 	<url>http://popsugar-lunch.appspot.com</url>
 	<inceptionYear>2013</inceptionYear>
