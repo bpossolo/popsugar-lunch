@@ -173,8 +173,6 @@ public class LunchManager {
 	
 	void notifyUsersAboutNewLunchGroups(List<LunchGroup> lunchGroups){
 		
-		String subject = "Lunch for Four";
-		
 		for( LunchGroup group : lunchGroups ){
 			
 			StringBuilder body = new StringBuilder()
@@ -197,7 +195,7 @@ public class LunchManager {
 			Message msg = new Message();
 			msg.setSender("PopSugar Lunch for Four <noreply@popsugar-lunch.appspotmail.com>");
 			msg.setBcc(recipients);
-			msg.setSubject(subject);
+			msg.setSubject("Lunch for Four");
 			msg.setTextBody(body.toString());
 			try{
 				mailService.send(msg);
@@ -257,8 +255,6 @@ public class LunchManager {
 			return groups;
 		}
 		Collections.shuffle(users);
-		
-		// TODO set lunch group week
 		
 		LunchGroup currentGroup = new LunchGroup(location, GroupType.Regular);
 		Iterator<User> i = users.iterator();
