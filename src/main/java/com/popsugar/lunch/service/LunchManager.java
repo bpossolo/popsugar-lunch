@@ -189,7 +189,7 @@ public class LunchManager {
 				body.append('\n');
 			}
 			
-			body.append("\nIf you know anyone that would like to join Lunch for Four, feel free to invite them via http://popsugar-lunch.appspot.com\n\n")
+			body.append("\nIf you know anyone that would like to join Lunch for Four, feel free to invite them via http://lunch.popsugar.com\n\n")
 			.append("If you would like to be removed from Lunch for Four, please email Benjamin Possolo (bpossolo@popsugar.com) or Human Resources (hr@popsugar.com)");
 			
 			Message msg = new Message();
