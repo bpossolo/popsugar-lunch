@@ -7,6 +7,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Query;
 import com.popsugar.lunch.dao.UserDAO;
 import com.popsugar.lunch.model.GroupType;
+import com.popsugar.lunch.util.DatastoreUtil;
 
 public class Task2 extends UpgradeTask {
 
@@ -20,7 +21,7 @@ public class Task2 extends UpgradeTask {
 		Iterable<Entity> results = datastore.prepare(q).asIterable();
 		List<Entity> entities = new ArrayList<>();
 		for (Entity entity : results) {
-			entity.setProperty(UserDAO.GroupTypesProp, groups);
+			DatastoreUtil.setEnumList(entity, UserDAO.GroupTypesProp, groups);
 			entities.add(entity);
 		}
 		
