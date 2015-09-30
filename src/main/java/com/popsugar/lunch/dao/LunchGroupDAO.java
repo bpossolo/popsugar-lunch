@@ -3,6 +3,8 @@ package com.popsugar.lunch.dao;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
@@ -17,6 +19,8 @@ import com.popsugar.lunch.model.LunchGroup;
 import com.popsugar.lunch.util.DatastoreUtil;
 
 public class LunchGroupDAO {
+	
+	private static final Logger log = Logger.getLogger(LunchGroupDAO.class.getName());
 	
 	public static final String Kind = LunchGroup.class.getSimpleName();
 	public static final String CoordinatorKeyProp = "coordinatorKey";
@@ -40,6 +44,7 @@ public class LunchGroupDAO {
 	}
 	
 	public void deleteLunchGroups(GroupType groupType){
+		log.log(Level.INFO, "Deleting {0} lunch groups", groupType);
 		Query q = new Query(Kind)
 			.setFilter(new FilterPredicate(TypeProp, FilterOperator.EQUAL, groupType.name()))
 			.setKeysOnly();

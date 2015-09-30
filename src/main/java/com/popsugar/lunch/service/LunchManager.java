@@ -209,6 +209,8 @@ public class LunchManager {
 	}
 	
 	List<LunchGroup> buildPalsLunchGroups(List<User> users, Location location) {
+		log.log(Level.INFO, "Building popsugar pals lunch groups for {0} people in {1}", 
+				new Object[]{ users.size(), location });
 		ArrayList<LunchGroup> groups = new ArrayList<>();
 		if (users.isEmpty()) {
 			return groups;
@@ -248,6 +250,8 @@ public class LunchManager {
 	}
 	
 	List<LunchGroup> buildRegularLunchGroups(List<User> users, Location location){
+		log.log(Level.INFO, "Building regular lunch groups for {0} people in {1}", 
+				new Object[]{ users.size(), location });
 		ArrayList<LunchGroup> groups = new ArrayList<>();
 		if( users.isEmpty() ){
 			return groups;
