@@ -17,12 +17,13 @@
         <option value="LosAngeles">Los Angeles</option>
       </select>
     </div>
-    <input class="btn" type="submit" value="Sign Me Up!">
+    <input class="btn" type="submit" value="Sign Me Up!" ng-disabled="loading">
   </form>
-</div>
-<div class="message error" ng-if="failure">
-  We need your name, email and location!
-</div>
-<div class="message success" ng-if="success">
-  Great! You&#39;ll receive an email every few weeks with a new lunch group!
+
+  <div class="message error" ng-if="error">
+    We need your name, email and location!
+  </div>
+  <div class="message success" ng-if="success">
+    Great! You&#39;ll receive an email every few weeks with a new lunch group!
+  </div>
 </div>

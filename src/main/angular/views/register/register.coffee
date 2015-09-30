@@ -5,24 +5,41 @@ angular.module('app').controller('RegisterCtrl', ['$scope', '$injector', ($scope
 
   $scope.location = 'none'
 
+  locationPromise = $http.get '/api/lunch/my-location'
+  locationPromise.success (data) ->
+    if data.location
+      $scope.location = data.location
+  locationPromise.error ->
+    return
+
   suppressMessage = ->
     $scope.success = false
     $scope.error = false
 
   $scope.register = ->
+    name = $scope.name or ''
+    name = name.trim()
+    email = $scope.email or ''
+    email = email.trim()
+    location = $scope.location
+    if not name or not email or location is 'none'
+      $scope.error = true
+      $timeout suppressMessage, 5000
+      return
     data =
-      name: $scope.name
-      email: $scope.email
-      location: $scope.location
-
+      name: name
+      email: email
+      location: location
+    $scope.loading = true
     promise = $http.post '/api/lunch/create-user', data
     promise.success ->
+      $scope.loading = false
       $scope.success = true
       $scope.name = null
       $scope.email = null
-      $scope.location = 'none'
       $timeout suppressMessage, 5000
     promise.error ->
+      $scope.loading = false
       $scope.error = true
       $timeout suppressMessage, 5000
     return
