@@ -4,15 +4,18 @@ coffee = require 'gulp-coffee'
 del = require 'del'
 gutil = require 'gulp-util'
 concat = require 'gulp-concat'
+replace = require 'gulp-replace'
 browserSync = require('browser-sync').create()
 sass = require 'gulp-ruby-sass'
 historyApiFallback = require 'connect-history-api-fallback'
 proxy = require './proxy'
+packageJson = require './package.json'
 
 # -----------------------------------------------------------
 # Variables
 # -----------------------------------------------------------
 
+appVersion = packageJson.version
 OutputDir = 'target/popsugar-lunch'
 reloadOpts =
   stream: true
@@ -69,6 +72,7 @@ gulp.task 'sass', ->
 gulp.task 'html', ->
   gulp
     .src(htmlFiles)
+    .pipe(replace('${project.version}', appVersion))
     .pipe(gulp.dest("#{OutputDir}"))
     .pipe(browserSync.reload(reloadOpts))
 

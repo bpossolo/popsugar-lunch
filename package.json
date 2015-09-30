@@ -1,6 +1,6 @@
 {
   "name": "popsugar-lunch-for-four",
-  "version": "1.0.0",
+  "version": "4.0.0",
   "devDependencies": {
     "browser-sync": "2.8.2",
     "coffee-script": "1.9.3",
@@ -11,6 +11,7 @@
     "gulp-if": "1.2.5",
     "gulp-ruby-sass": "1.4.0",
     "gulp-util": "3.0.6",
+    "gulp-replace": "0.5.4",
     "lodash": "3.10.1"
   },
   "engines": {

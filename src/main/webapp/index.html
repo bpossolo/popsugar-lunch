@@ -2,8 +2,11 @@
 <html ng-app="app">
 <head>
 	<title>PopSugar - Lunch for Four</title>
-	<link type="text/css" rel="stylesheet" href="/main.css">
-	<script type="text/javascript" src="/main.js"></script>
+	<link type="text/css" rel="stylesheet" href="/main.css?v=${project.version}">
+	<script type="text/javascript" src="/main.js?v=${project.version}"></script>
+  <script type="text/javascript">
+    var appVersion = '${project.version}';
+  </script>
 </head>
 <body ng-class="{ 'home': isHome(), 'lunch-groups': isLunchGroups() }">
 	<noscript>
