@@ -53,7 +53,7 @@ public class UserDAO {
 			Key key = datastore.put(userEntity);
 			user.setKey(key.getId());
 		}
-		// TODO reactive the user if one already exists and update name
+		// TODO re-activate the user if one already exists and update name
 	}
 	
 	public void linkUsers(Long userAId, Long userBId) throws EntityNotFoundException {

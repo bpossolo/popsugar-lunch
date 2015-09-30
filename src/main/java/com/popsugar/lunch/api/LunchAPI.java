@@ -35,7 +35,6 @@ import com.popsugar.lunch.service.LunchManager;
 import com.popsugar.lunch.upgrade.UpgradeTask;
 
 @Path("/lunch")
-@Consumes(MediaType.APPLICATION_JSON)
 public class LunchAPI {
 	
 	private static final Logger log = Logger.getLogger(LunchAPI.class.getName());
@@ -71,10 +70,10 @@ public class LunchAPI {
 	@Path("/users")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<UserDTO> getUsers() {
-		List<User> users = lunchManager.getActiveUsersWithBuddies();
+		List<User> users = lunchManager.getActiveUsers();
 		List<UserDTO> result = new ArrayList<>(users.size());
 		for (User user : users) {
-			UserDTO dto = UserDTO.Builder.user(user).build();
+			UserDTO dto = new UserDTO(user);
 			result.add(dto);
 		}
 		return result;
@@ -82,6 +81,7 @@ public class LunchAPI {
 	
 	@POST
 	@Path("/create-user")
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response createUser(CreateUserDTO dto) {
 		lunchManager.createUser(dto.name, dto.email, dto.location);
@@ -106,6 +106,7 @@ public class LunchAPI {
 	
 	@POST
 	@Path("/buddies")
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response linkUsers(BuddiesDTO dto) throws EntityNotFoundException {
 		lunchManager.linkUsers(dto.userAKey, dto.userBKey);
@@ -115,8 +116,11 @@ public class LunchAPI {
 	@DELETE
 	@Path("/buddies")
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response unlinkUsers(BuddiesDTO dto) throws EntityNotFoundException {
-		lunchManager.unlinkUsers(dto.userAKey, dto.userBKey);
+	public Response unlinkUsers(
+		@QueryParam("userAKey") Long userAKey,
+		@QueryParam("userBKey") Long userBKey)
+				throws EntityNotFoundException {
+		lunchManager.unlinkUsers(userAKey, userBKey);
 		return Response.status(200).entity("Users unlinked").build();
 	}
 	

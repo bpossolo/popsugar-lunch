@@ -45,15 +45,8 @@ public class LunchManager {
 	//Public methods
 	//-------------------------------------------------------------------------------------------
 	
-	public List<User> getActiveUsersWithBuddies() {
-		Map<Long,User> map = userDao.getAllUsersMappedByKey();
-		List<User> users = new ArrayList<>(map.values());
-		for (User user : users) {
-			if (user.getBuddyKey() != null) {
-				User buddy = map.get(user.getBuddyKey());
-				user.setBuddy(buddy);
-			}
-		}
+	public List<User> getActiveUsers() {
+		List<User> users = userDao.getAllUsers();
 		return users;
 	}
 	

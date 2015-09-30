@@ -22,7 +22,7 @@ public class LunchGroupDTO {
 		users = new ArrayList<>(group.getUsers().size());
 		for (User user : group.getUsers()) {
 			boolean isCoordinator = group.isCoordinatedBy(user);
-			UserDTO userDto = UserDTO.Builder.user(user, isCoordinator).build();
+			UserDTO userDto = new UserDTO(user, isCoordinator);
 			users.add(userDto);
 		}
 	}

@@ -34,7 +34,11 @@
         <span class="name">{{user.name}}</span>
       </div>
     </div>
-    <button class="btn link-users" ng-click="linkUsers()" ng-disabled="numSelected !== 2">Connect!</button>
+    <button class="btn link-users"
+      ng-click="toggleUserConnection()"
+      ng-disabled="numSelected !== 2">
+      {{toggleUserConnectionBtnLabel}}
+    </button>
     <div class="message success" ng-if="success">
       {{success}}
     </div>
