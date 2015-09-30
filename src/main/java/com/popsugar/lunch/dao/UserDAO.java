@@ -3,9 +3,7 @@ package com.popsugar.lunch.dao;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.google.appengine.api.datastore.DatastoreFailureException;
 import com.google.appengine.api.datastore.DatastoreService;
@@ -60,14 +58,19 @@ public class UserDAO {
 		Key userAKey = KeyFactory.createKey(Kind, userAId);
 		Key userBKey = KeyFactory.createKey(Kind, userBId);
 		
+		List<GroupType> pals = new ArrayList<>();
+		pals.add(GroupType.PopsugarPals);
+		
 		TransactionOptions txOptions = TransactionOptions.Builder.withXG(true);
 		Transaction tx = datastore.beginTransaction(txOptions);
 		try {
 			Entity userA = datastore.get(userAKey);
-			Entity userB = datastore.get(userBKey);
-			
 			userA.setProperty(BuddyKeyProp, userBId);
+			userA.setProperty(GroupTypesProp, pals);
+			
+			Entity userB = datastore.get(userBKey);
 			userB.setProperty(BuddyKeyProp, userAId);
+			userB.setProperty(GroupTypesProp, pals);
 			
 			List<Entity> users = new ArrayList<>(2);
 			users.add(userA);
@@ -108,7 +111,7 @@ public class UserDAO {
 		}
 	}
 	
-	public User getUserById(Long userId) throws EntityNotFoundException {
+	public User getUserByKey(Long userId) throws EntityNotFoundException {
 		Key key = KeyFactory.createKey(Kind, userId);
 		Entity e = datastore.get(key);
 		User user = decodeEntity(e);
@@ -125,32 +128,24 @@ public class UserDAO {
 		datastore.put(entities);
 	}
 	
-	public List<User> getAllUsers(){
+	public List<User> getActiveUsers(){
 		Query q = new Query(Kind).setFilter(new FilterPredicate(ActiveProp, FilterOperator.EQUAL, true));
 		List<Entity> entities = datastore.prepare(q).asList(FetchOptions.Builder.withDefaults());
 		List<User> users = decodeEntities(entities);
 		return users;
 	}
 	
-	public List<User> getActiveUsersByLocation(Location location, GroupType groupType){
+	public List<User> getActiveUsersByLocationAndGroupType(Location location, GroupType groupType){
 		Query q = new Query(Kind).setFilter(
 			CompositeFilterOperator.and(
+				new FilterPredicate(ActiveProp, FilterOperator.EQUAL, true),
 				new FilterPredicate(LocationProp, FilterOperator.EQUAL, location.name()),
-				new FilterPredicate(ActiveProp, FilterOperator.EQUAL, true)
-//				new FilterPredicate(GroupTypesProp, FilterOperator.EQUAL, groupType.name())
+				new FilterPredicate(GroupTypesProp, FilterOperator.EQUAL, groupType.name())
 			)
 		);
 		List<Entity> entities = datastore.prepare(q).asList(FetchOptions.Builder.withDefaults());
 		List<User> users = decodeEntities(entities);
 		return users;
-	}
-	
-	public Map<Long,User> getAllUsersMappedByKey(){
-		HashMap<Long,User> map = new HashMap<>();
-		for (User user : getAllUsers()) {
-			map.put(user.getKey(), user);
-		}
-		return map;
 	}
 	
 	public void setDatastore(DatastoreService datastore) {

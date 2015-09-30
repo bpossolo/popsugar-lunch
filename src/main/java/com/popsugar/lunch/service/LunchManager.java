@@ -14,13 +14,13 @@ import java.util.logging.Logger;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Message;
-import com.google.appengine.api.mail.MailServiceFactory;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.popsugar.lunch.dao.LunchGroupDAO;
 import com.popsugar.lunch.dao.UserDAO;
 import com.popsugar.lunch.model.GroupType;
 import com.popsugar.lunch.model.Location;
 import com.popsugar.lunch.model.LunchGroup;
+import com.popsugar.lunch.model.Pair;
 import com.popsugar.lunch.model.PingboardUser;
 import com.popsugar.lunch.model.User;
 
@@ -40,13 +40,14 @@ public class LunchManager {
 	private UserDAO userDao;
 	private PingboardService pingboard;
 	private MemcacheService memcache;
+	private MailService mailService;
 	
 	//-------------------------------------------------------------------------------------------
 	//Public methods
 	//-------------------------------------------------------------------------------------------
 	
 	public List<User> getActiveUsers() {
-		List<User> users = userDao.getAllUsers();
+		List<User> users = userDao.getActiveUsers();
 		return users;
 	}
 	
@@ -64,8 +65,14 @@ public class LunchManager {
 	public void generateLunchGroups(GroupType groupType){
 		lunchGroupDao.deleteLunchGroups(groupType);
 		for( Location location : Location.values() ){
-			List<User> users = userDao.getActiveUsersByLocation(location, groupType);
-			List<LunchGroup> groups = buildLunchGroups(users, location, groupType);
+			List<User> users = userDao.getActiveUsersByLocationAndGroupType(location, groupType);
+			List<LunchGroup> groups;
+			if (groupType == GroupType.PopsugarPals) {
+				groups = buildPalsLunchGroups(users, location);
+			}
+			else {
+				groups = buildRegularLunchGroups(users, location);
+			}
 			lunchGroupDao.persistLunchGroups(groups);
 			notifyUsersAboutNewLunchGroups(groups);
 		}
@@ -80,7 +87,8 @@ public class LunchManager {
 			groups = lunchGroupDao.getLunchGroups(groupType);
 			
 			// populate the groups with the user objects
-			Map<Long,User> userMap = userDao.getAllUsersMappedByKey();
+			List<User> users = userDao.getActiveUsers();
+			Map<Long,User> userMap = User.mapByKey(users);
 			for( LunchGroup group : groups ){
 				for( Long userKey : group.getUserKeys() ){
 					User user = userMap.get(userKey);
@@ -122,7 +130,7 @@ public class LunchManager {
 	
 	public void deactivateUser(Long userId) {
 		try {
-			User user = userDao.getUserById(userId);
+			User user = userDao.getUserByKey(userId);
 			user.setActive(false);
 			userDao.updateUser(user);
 		}
@@ -140,7 +148,7 @@ public class LunchManager {
 	}
 	
 	public void updateUsersWithPingboardData() {
-		List<User> users = userDao.getAllUsers();
+		List<User> users = userDao.getActiveUsers();
 		List<PingboardUser> pingboardUsers = pingboard.getAllUsers();
 		Map<String,PingboardUser> map = pingboard.buildEmailUserMap(pingboardUsers);
 		
@@ -165,7 +173,6 @@ public class LunchManager {
 	
 	void notifyUsersAboutNewLunchGroups(List<LunchGroup> lunchGroups){
 		
-		MailService mailService = MailServiceFactory.getMailService();
 		String subject = "Lunch for Four";
 		
 		for( LunchGroup group : lunchGroups ){
@@ -201,34 +208,74 @@ public class LunchManager {
 		}
 	}
 	
-	List<LunchGroup> buildLunchGroups(List<User> users, Location location, GroupType groupType){
-		
+	List<LunchGroup> buildPalsLunchGroups(List<User> users, Location location) {
 		ArrayList<LunchGroup> groups = new ArrayList<>();
-		
-		if( users.isEmpty() )
+		if (users.isEmpty()) {
 			return groups;
+		}
+		List<Pair> pairs = Pair.buildPairs(users);
+		Collections.shuffle(pairs);
 		
+		Pair leftoverPair = null;
+		if (pairs.size() % 2 == 1) {
+			leftoverPair = pairs.remove(pairs.size() - 1);
+		}
+		
+		LunchGroup currentGroup = new LunchGroup(location, GroupType.PopsugarPals);
+		Iterator<Pair> i = pairs.iterator();
+		while (i.hasNext()) {
+			Pair pair = i.next();
+			currentGroup.addUserAndKey(pair.getUserA());
+			currentGroup.addUserAndKey(pair.getUserB());
+			if (currentGroup.isFull()) {
+				groups.add(currentGroup);
+				if (i.hasNext()) {
+					currentGroup = new LunchGroup(location, GroupType.PopsugarPals);
+				}
+			}
+		}
+		
+		if (leftoverPair != null) {
+			currentGroup.addUserAndKey(leftoverPair.getUserA());
+			currentGroup.addUserAndKey(leftoverPair.getUserB());
+			if (groups.isEmpty()) {
+				// special case where there was only a single pair
+				groups.add(currentGroup);
+			}
+		}
+		
+		return groups;
+	}
+	
+	List<LunchGroup> buildRegularLunchGroups(List<User> users, Location location){
+		ArrayList<LunchGroup> groups = new ArrayList<>();
+		if( users.isEmpty() ){
+			return groups;
+		}
 		Collections.shuffle(users);
 		
 		// TODO set lunch group week
 		
-		LunchGroup currentGroup = new LunchGroup(location, groupType);
+		LunchGroup currentGroup = new LunchGroup(location, GroupType.Regular);
 		Iterator<User> i = users.iterator();
 		while( i.hasNext() ){
 			User user = i.next();
 			currentGroup.addUserAndKey(user);
 			if( currentGroup.isFull() ){
 				groups.add(currentGroup);
-				if( i.hasNext() )
-					currentGroup = new LunchGroup(location, groupType);
+				if( i.hasNext() ){
+					currentGroup = new LunchGroup(location, GroupType.Regular);
+				}
 			}
 		}
 		
 		if( ! currentGroup.isFull() ){
-			if( currentGroup.size() >= LunchGroup.MinGroupSize )
+			if( currentGroup.size() >= LunchGroup.MinGroupSize ){
 				groups.add(currentGroup);
-			else
-				distributeUsersInUndersizedGroupToOtherGroups(groupType, groups, currentGroup);
+			}
+			else {
+				distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, currentGroup);
+			}
 		}
 		
 		return groups;
@@ -285,6 +332,10 @@ public class LunchManager {
 	
 	public void setPingboard(PingboardService pingboard) {
 		this.pingboard = pingboard;
+	}
+	
+	public void setMailService(MailService mailService) {
+		this.mailService = mailService;
 	}
 
 }

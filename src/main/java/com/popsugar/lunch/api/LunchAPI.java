@@ -61,8 +61,9 @@ public class LunchAPI {
 	@GET
 	@Path("/generate-groups")
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response generateLunchGroups(@QueryParam("type") GroupType type) {
-		lunchManager.generateLunchGroups(type);
+	public Response generateLunchGroups() {
+		lunchManager.generateLunchGroups(GroupType.Regular);
+		lunchManager.generateLunchGroups(GroupType.PopsugarPals);
 		return Response.status(200).entity("Lunch groups generated").build();
 	}
 	

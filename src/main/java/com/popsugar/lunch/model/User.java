@@ -2,7 +2,9 @@ package com.popsugar.lunch.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class User implements Serializable {
 	
@@ -52,6 +54,14 @@ public class User implements Serializable {
 		else if( ! email.equals(other.email) )
 			return false;
 		return true;
+	}
+	
+	public static Map<Long,User> mapByKey(List<User> users) {
+		Map<Long,User> map = new HashMap<>();
+		for (User user : users) {
+			map.put(user.getKey(), user);
+		}
+		return map;
 	}
 
 	public Long getKey() {

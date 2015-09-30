@@ -6,6 +6,8 @@ import javax.servlet.ServletContextListener;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.mail.MailService;
+import com.google.appengine.api.mail.MailServiceFactory;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.urlfetch.URLFetchService;
@@ -28,10 +30,11 @@ public class WebAppInitializer implements ServletContextListener {
 		MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		URLFetchService urlFetchService = URLFetchServiceFactory.getURLFetchService();
+		MailService mailService = MailServiceFactory.getMailService();
 		
-		PingboardService pingboardService = new PingboardService();
-		pingboardService.setUrlFetchService(urlFetchService);
-		pingboardService.setMemcache(memcache);
+		PingboardService pingboard = new PingboardService();
+		pingboard.setUrlFetchService(urlFetchService);
+		pingboard.setMemcache(memcache);
 		
 		LunchGroupDAO lunchGroupDao = new LunchGroupDAO();
 		lunchGroupDao.setDatastore(datastore);
@@ -43,13 +46,14 @@ public class WebAppInitializer implements ServletContextListener {
 		lunchManager.setMemcache(memcache);
 		lunchManager.setLunchGroupDao(lunchGroupDao);
 		lunchManager.setUserDao(userDao);
-		lunchManager.setPingboard(pingboardService);
+		lunchManager.setPingboard(pingboard);
+		lunchManager.setMailService(mailService);
 		
 		ServletContext servletContext = contextEvent.getServletContext();
 		
 		servletContext.setAttribute(LunchManager, lunchManager);
 		servletContext.setAttribute(Datastore, datastore);
-		servletContext.setAttribute(PingboardService, pingboardService);
+		servletContext.setAttribute(PingboardService, pingboard);
 		servletContext.setAttribute(UserDAO, userDao);
 	}
 

@@ -43,11 +43,11 @@ public class UserDAOTest {
 		TestUtils.createUser(datastore, "ashley", "ashley@home", Location.LosAngeles, false, GroupType.Regular);
 		TestUtils.createUser(datastore, "brad", "brad@home", Location.NewYork, true, GroupType.Regular);
 		
-		List<User> laPeeps = dao.getActiveUsersByLocation(Location.LosAngeles, GroupType.Regular);
+		List<User> laPeeps = dao.getActiveUsersByLocationAndGroupType(Location.LosAngeles, GroupType.Regular);
 		assertEquals(1, laPeeps.size());
 		assertEquals("tiers", laPeeps.get(0).getName());
 		
-		List<User> nyPeeps = dao.getActiveUsersByLocation(Location.NewYork, GroupType.Regular);
+		List<User> nyPeeps = dao.getActiveUsersByLocationAndGroupType(Location.NewYork, GroupType.Regular);
 		assertEquals(1, nyPeeps.size());
 		assertEquals("brad", nyPeeps.get(0).getName());
 	}
