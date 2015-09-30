@@ -1,7 +1,11 @@
 package com.popsugar.lunch.service;
 
+import java.util.Calendar;
+
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.google.appengine.api.memcache.MemcacheService;
@@ -40,6 +44,24 @@ public class LunchManagerTest {
 	@After
 	public void tearDown() throws Exception {
 		helper.tearDown();
+	}
+	
+	@Test
+	public void testCalendarWeekOfYear() {
+		Calendar date = Calendar.getInstance();
+		date.clear();
+		
+		date.set(2014, Calendar.DECEMBER, 28);
+		Assert.assertEquals(1, date.get(Calendar.WEEK_OF_YEAR));
+		
+		date.set(2015, Calendar.JANUARY, 3);
+		Assert.assertEquals(1, date.get(Calendar.WEEK_OF_YEAR));
+		
+		date.set(2015, Calendar.JANUARY, 4);
+		Assert.assertEquals(2, date.get(Calendar.WEEK_OF_YEAR));
+		
+		date.set(2015, Calendar.FEBRUARY, 1);
+		Assert.assertEquals(6, date.get(Calendar.WEEK_OF_YEAR));
 	}
 	
 	/*
