@@ -12,7 +12,7 @@ angular.module('app').controller('LunchGroupsCtrl', ['$scope', '$injector', ($sc
     params: {}
 
   if $stateParams.type is 'popsugar-pals'
-    config.params.type = 'PopSugarPals'
+    config.params.type = 'PopsugarPals'
   else
     config.params.type = 'Regular'
 
