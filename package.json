@@ -1,6 +1,6 @@
 {
   "name": "popsugar-lunch-for-four",
-  "version": "5",
+  "version": "6",
   "devDependencies": {
     "browser-sync": "2.8.2",
     "coffee-script": "1.9.3",
