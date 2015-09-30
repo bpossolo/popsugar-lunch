@@ -2,6 +2,8 @@
   width: 80%;
   margin: 60px auto 0;
   text-align: center;
+  border: 1px solid $btn-main-color;
+  background-color: white;
 
   .column {
     display: inline-block;
@@ -58,13 +60,6 @@
         margin-left: 10px;
       }
     }
-  }
-
-  .select-users-label {
-    font-family: $font-family-base;
-    font-size: 24px;
-    font-weight: normal;
-    color: $btn-main-color;
   }
 
   .selected-users {
