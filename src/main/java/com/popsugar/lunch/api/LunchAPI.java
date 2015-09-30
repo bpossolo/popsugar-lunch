@@ -9,6 +9,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -61,9 +62,9 @@ public class LunchAPI {
 	@GET
 	@Path("/generate-groups")
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response generateLunchGroups() {
-		lunchManager.generateLunchGroups(GroupType.Regular);
-		lunchManager.generateLunchGroups(GroupType.PopsugarPals);
+	public Response generateLunchGroups(@QueryParam("email") @DefaultValue("false") boolean email) {
+		lunchManager.generateLunchGroups(GroupType.Regular, email);
+		lunchManager.generateLunchGroups(GroupType.PopsugarPals, email);
 		return Response.status(200).entity("Lunch groups generated").build();
 	}
 	

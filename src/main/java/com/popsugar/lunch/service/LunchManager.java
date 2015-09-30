@@ -62,7 +62,7 @@ public class LunchManager {
 		return user;
 	}
 	
-	public void generateLunchGroups(GroupType groupType){
+	public void generateLunchGroups(GroupType groupType, boolean email){
 		lunchGroupDao.deleteLunchGroups(groupType);
 		for( Location location : Location.values() ){
 			List<User> users = userDao.getActiveUsersByLocationAndGroupType(location, groupType);
@@ -74,7 +74,9 @@ public class LunchManager {
 				groups = buildRegularLunchGroups(users, location);
 			}
 			lunchGroupDao.persistLunchGroups(groups);
-			notifyUsersAboutNewLunchGroups(groups);
+			if (email) {
+				notifyUsersAboutNewLunchGroups(groups);
+			}
 		}
 		String week = getCurrentWeek();
 		memcache.delete(week);
