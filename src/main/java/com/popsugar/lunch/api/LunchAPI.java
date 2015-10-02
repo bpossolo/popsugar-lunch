@@ -62,9 +62,15 @@ public class LunchAPI {
 	@GET
 	@Path("/generate-groups")
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response generateLunchGroups(@QueryParam("email") @DefaultValue("false") boolean email) {
-		lunchManager.generateLunchGroups(GroupType.Regular, email);
-		lunchManager.generateLunchGroups(GroupType.PopsugarPals, email);
+	public Response generateLunchGroups(
+			@QueryParam("type") GroupType type,
+			@QueryParam("email") @DefaultValue("false") boolean email) {
+		if (type == null || type == GroupType.Regular) {
+			lunchManager.generateLunchGroups(GroupType.Regular, email);
+		}
+		if (type == null || type == GroupType.PopsugarPals) {
+			lunchManager.generateLunchGroups(GroupType.PopsugarPals, email);
+		}
 		return Response.status(200).entity("Lunch groups generated").build();
 	}
 	
