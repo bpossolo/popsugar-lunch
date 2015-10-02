@@ -2,6 +2,7 @@ package com.popsugar.lunch.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,6 +111,10 @@ public class User implements Serializable {
 	
 	public void setGroupTypes(List<GroupType> groupTypes) {
 		this.groupTypes = groupTypes;
+	}
+	
+	public void setGroupTypes(GroupType...types) {
+		groupTypes = new ArrayList<>(Arrays.asList(types));
 	}
 	
 	public void addGroupType(GroupType groupType) {

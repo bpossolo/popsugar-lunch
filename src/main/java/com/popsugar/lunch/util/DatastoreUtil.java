@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
 
 public class DatastoreUtil {
 	
@@ -48,6 +49,15 @@ public class DatastoreUtil {
 			}
 			e.setProperty(propertyName, names);
 		}
+	}
+	
+	public static List<Key> getKeys(List<Entity> entities) {
+		List<Key> keys = new ArrayList<>(entities.size());
+		for (Entity entity : entities) {
+			Key key = entity.getKey();
+			keys.add(key);
+		}
+		return keys;
 	}
 
 }

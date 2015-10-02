@@ -58,19 +58,16 @@ public class UserDAO {
 		Key userAKey = KeyFactory.createKey(Kind, userAId);
 		Key userBKey = KeyFactory.createKey(Kind, userBId);
 		
-		List<GroupType> groupTypes = new ArrayList<>();
-		groupTypes.add(GroupType.PopsugarPals);
-		
 		TransactionOptions txOptions = TransactionOptions.Builder.withXG(true);
 		Transaction tx = datastore.beginTransaction(txOptions);
 		try {
 			Entity userA = datastore.get(userAKey);
 			userA.setProperty(BuddyKeyProp, userBId);
-			DatastoreUtil.setEnumList(userA, GroupTypesProp, groupTypes);
+			DatastoreUtil.setEnumList(userA, GroupTypesProp, GroupType.PopsugarPals.asList());
 			
 			Entity userB = datastore.get(userBKey);
 			userB.setProperty(BuddyKeyProp, userAId);
-			DatastoreUtil.setEnumList(userB, GroupTypesProp, groupTypes);
+			DatastoreUtil.setEnumList(userB, GroupTypesProp, GroupType.PopsugarPals.asList());
 			
 			List<Entity> users = new ArrayList<>(2);
 			users.add(userA);

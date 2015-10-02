@@ -49,10 +49,7 @@ public class LunchGroupDAO {
 			.setFilter(new FilterPredicate(TypeProp, FilterOperator.EQUAL, groupType.name()))
 			.setKeysOnly();
 		List<Entity> entities = datastore.prepare(q).asList(FetchOptions.Builder.withDefaults());
-		ArrayList<Key> keys = new ArrayList<>(entities.size());
-		for (Entity e : entities) {
-			keys.add(e.getKey());
-		}
+		List<Key> keys = DatastoreUtil.getKeys(entities);
 		datastore.delete(keys);
 	}
 	
