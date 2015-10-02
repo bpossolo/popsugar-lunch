@@ -1,6 +1,9 @@
 package com.popsugar.lunch.service;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -8,6 +11,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.google.appengine.api.mail.MailService;
+import com.google.appengine.api.mail.MailService.Message;
+import com.google.appengine.api.mail.MailServiceFactory;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.tools.development.testing.LocalMailServiceTestConfig;
@@ -15,6 +21,11 @@ import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestCo
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.popsugar.lunch.dao.LunchGroupDAO;
 import com.popsugar.lunch.dao.UserDAO;
+import com.popsugar.lunch.model.GroupType;
+import com.popsugar.lunch.model.Location;
+import com.popsugar.lunch.model.LunchGroup;
+import com.popsugar.lunch.model.User;
+import com.popsugar.lunch.util.CollectionUtil;
 
 public class LunchManagerTest {
 	
@@ -26,11 +37,15 @@ public class LunchManagerTest {
 	private UserDAO userDao;
 	private LunchGroupDAO lunchGroupDao;
 	private MemcacheService memcache;
+	private MailService mailService;
+	private MailService mockMailService;
 
 	@Before
 	public void setUp() throws Exception {
 		helper.setUp();
 		memcache = MemcacheServiceFactory.getMemcacheService();
+		mailService = MailServiceFactory.getMailService();
+		mockMailService = Mockito.mock(MailService.class);
 		
 		userDao = Mockito.mock(UserDAO.class);
 		lunchGroupDao = Mockito.mock(LunchGroupDAO.class);
@@ -39,6 +54,7 @@ public class LunchManagerTest {
 		manager.setUserDao(userDao);
 		manager.setLunchGroupDao(lunchGroupDao);
 		manager.setMemcache(memcache);
+		manager.setMailService(mailService);
 	}
 
 	@After
@@ -64,36 +80,26 @@ public class LunchManagerTest {
 		Assert.assertEquals(6, date.get(Calendar.WEEK_OF_YEAR));
 	}
 	
-	/*
 	@Test
-	public void testPersistGetAndDeleteLunchGroups(){
+	public void testGetLunchGroups(){
 		
 		User benji = new User("benji", "benji@home", Location.SanFrancisco);
-		persistInTx(benji);
-		
-		User tiers = new User("tiers", "tiers@home", Location.SanFrancisco);
-		persistInTx(tiers);
+		User tom = new User("tom", "tom@home", Location.SanFrancisco);
 		
 		LunchGroup group1 = new LunchGroup(Location.SanFrancisco, GroupType.Regular);
 		group1.addUserAndKey(benji);
 		
 		LunchGroup group2 = new LunchGroup(Location.SanFrancisco, GroupType.Regular);
-		group2.addUserAndKey(tiers);
+		group2.addUserAndKey(tom);
 		
 		List<LunchGroup> groups = Arrays.asList(group1, group2);
+		Mockito.when(lunchGroupDao.getLunchGroups(GroupType.Regular)).thenReturn(groups);
 		
-		manager.persistLunchGroupsInTx(em, groups);
+		List<LunchGroup> result = manager.getLunchGroupsWithUsers("2015-02-20", GroupType.Regular);
 		
-		groups = manager.getLunchGroupsWithUsers();
-		
-		assertEquals(2, groups.size());
-		assertEquals(benji.getKey(), groups.get(0).getUsers().get(0).getKey());
-		assertEquals(tiers.getKey(), groups.get(1).getUsers().get(0).getKey());
-		
-		manager.deleteLunchGroupsInTx(em);
-		
-		groups = manager.getLunchGroupsWithUsers(em);
-		assertTrue(groups.isEmpty());
+		Assert.assertEquals(2, result.size());
+		Assert.assertEquals(benji.getName(), groups.get(0).getUsers().get(0).getName());
+		Assert.assertEquals(tom.getName(), groups.get(1).getUsers().get(0).getName());
 	}
 
 	@Test
@@ -104,11 +110,6 @@ public class LunchManagerTest {
 		User berta = new User("berta", "berta@fairfax", Location.SanFrancisco);
 		User lee = new User("lee", "lee@fairfax", Location.SanFrancisco);
 		User ash = new User("ash", "ash@ashburn", Location.SanFrancisco);
-		persistInTx(benji);
-		persistInTx(tiers);
-		persistInTx(berta);
-		persistInTx(lee);
-		persistInTx(ash);
 		
 		LunchGroup group = new LunchGroup(Location.SanFrancisco, GroupType.Regular);
 		group.addUserAndKey(benji);
@@ -119,14 +120,13 @@ public class LunchManagerTest {
 		LunchGroup undersizedGroup = new LunchGroup(Location.SanFrancisco, GroupType.Regular);
 		undersizedGroup.addUserAndKey(ash);
 		
-		ArrayList<LunchGroup> groups = new ArrayList<>();
-		groups.add(group);
+		List<LunchGroup> groups = CollectionUtil.singletonList(group);
 		
 		manager.distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, undersizedGroup);
 		
-		assertEquals(5, group.size());
-		assertEquals("ash", group.getUsers().get(4).getName());
-		assertEquals("ash@ashburn", group.getUsers().get(4).getEmail());
+		Assert.assertEquals(5, group.size());
+		Assert.assertEquals("ash", group.getUsers().get(4).getName());
+		Assert.assertEquals("ash@ashburn", group.getUsers().get(4).getEmail());
 	}
 	
 	@Test
@@ -138,12 +138,6 @@ public class LunchManagerTest {
 		User lee = new User("lee", "lee@fairfax", Location.SanFrancisco);
 		User ash = new User("ash", "ash@ashburn", Location.SanFrancisco);
 		User sam = new User("sam", "sam@donutshop", Location.SanFrancisco);
-		persistInTx(benji);
-		persistInTx(tiers);
-		persistInTx(berta);
-		persistInTx(lee);
-		persistInTx(ash);
-		persistInTx(sam);
 		
 		LunchGroup group = new LunchGroup(Location.SanFrancisco, GroupType.Regular);
 		group.addUserAndKey(benji);
@@ -155,24 +149,23 @@ public class LunchManagerTest {
 		undersizedGroup.addUserAndKey(ash);
 		undersizedGroup.addUserAndKey(sam);
 		
-		ArrayList<LunchGroup> groups = new ArrayList<>();
-		groups.add(group);
+		List<LunchGroup> groups = CollectionUtil.singletonList(group);
 		
 		manager.distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, undersizedGroup);
 		
 		LunchGroup group1 = groups.get(0);
 		LunchGroup group2 = groups.get(1);
 		
-		assertEquals(3, group1.size());
-		assertEquals(3, group2.size());
+		Assert.assertEquals(3, group1.size());
+		Assert.assertEquals(3, group2.size());
 		
-		assertEquals("benji", group1.getUsers().get(0).getName());
-		assertEquals("tiers", group1.getUsers().get(1).getName());
-		assertEquals("berta", group1.getUsers().get(2).getName());
+		Assert.assertEquals("benji", group1.getUsers().get(0).getName());
+		Assert.assertEquals("tiers", group1.getUsers().get(1).getName());
+		Assert.assertEquals("berta", group1.getUsers().get(2).getName());
 		
-		assertEquals("lee", group2.getUsers().get(0).getName());
-		assertEquals("ash", group2.getUsers().get(1).getName());
-		assertEquals("sam", group2.getUsers().get(2).getName());
+		Assert.assertEquals("lee", group2.getUsers().get(0).getName());
+		Assert.assertEquals("ash", group2.getUsers().get(1).getName());
+		Assert.assertEquals("sam", group2.getUsers().get(2).getName());
 	}
 	
 	@Test
@@ -188,16 +181,6 @@ public class LunchManagerTest {
 		User tim = new User("tim", "tim@dc", Location.SanFrancisco);
 		User jelena = new User("jelena", "jelena@dc", Location.SanFrancisco);
 		User byrd = new User("byrd", "byrd@dc", Location.SanFrancisco);
-		persistInTx(benji);
-		persistInTx(tiers);
-		persistInTx(berta);
-		persistInTx(lee);
-		persistInTx(ash);
-		persistInTx(sam);
-		persistInTx(jeffrey);
-		persistInTx(tim);
-		persistInTx(jelena);
-		persistInTx(byrd);
 		
 		LunchGroup group1 = new LunchGroup(Location.SanFrancisco, GroupType.Regular);
 		group1.addUserAndKey(benji);
@@ -215,47 +198,39 @@ public class LunchManagerTest {
 		undersizedGroup.addUserAndKey(ash);
 		undersizedGroup.addUserAndKey(sam);
 		
-		ArrayList<LunchGroup> groups = new ArrayList<>();
-		groups.add(group1);
-		groups.add(group2);
+		List<LunchGroup> groups = CollectionUtil.asList(group1, group2);
 		
 		manager.distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, undersizedGroup);
 		
-		assertEquals(5, group1.size());
-		assertEquals(5, group2.size());
+		Assert.assertEquals(5, group1.size());
+		Assert.assertEquals(5, group2.size());
 		
-		assertEquals("benji", group1.getUsers().get(0).getName());
-		assertEquals("tiers", group1.getUsers().get(1).getName());
-		assertEquals("berta", group1.getUsers().get(2).getName());
-		assertEquals("lee", group1.getUsers().get(3).getName());
-		assertEquals("ash", group1.getUsers().get(4).getName());
+		Assert.assertEquals("benji", group1.getUsers().get(0).getName());
+		Assert.assertEquals("tiers", group1.getUsers().get(1).getName());
+		Assert.assertEquals("berta", group1.getUsers().get(2).getName());
+		Assert.assertEquals("lee", group1.getUsers().get(3).getName());
+		Assert.assertEquals("ash", group1.getUsers().get(4).getName());
 		
-		assertEquals("jeffrey", group2.getUsers().get(0).getName());
-		assertEquals("tim", group2.getUsers().get(1).getName());
-		assertEquals("jelena", group2.getUsers().get(2).getName());
-		assertEquals("byrd", group2.getUsers().get(3).getName());
-		assertEquals("sam", group2.getUsers().get(4).getName());
+		Assert.assertEquals("jeffrey", group2.getUsers().get(0).getName());
+		Assert.assertEquals("tim", group2.getUsers().get(1).getName());
+		Assert.assertEquals("jelena", group2.getUsers().get(2).getName());
+		Assert.assertEquals("byrd", group2.getUsers().get(3).getName());
+		Assert.assertEquals("sam", group2.getUsers().get(4).getName());
 	}
 	
 	@Test
-	public void testNotifyUsersAboutNewLunchGroups(){
+	public void testNotifyUsersAboutNewLunchGroups() throws IOException {
 		
-		User benji = new User("benji", "benji@home", Location.SanFrancisco);
-		User tiers = new User("tiers", "tiers@home", Location.SanFrancisco);
-		User berta = new User("berta", "berta@fairfax", Location.SanFrancisco);
-		User lee = new User("lee", "lee@fairfax", Location.SanFrancisco);
-		User jeffrey = new User("jeffrey", "jeffrey@dc", Location.SanFrancisco);
-		User tim = new User("tim", "tim@dc", Location.SanFrancisco);
-		User jelena = new User("jelena", "jelena@dc", Location.SanFrancisco);
-		User byrd = new User("byrd", "byrd@dc", Location.SanFrancisco);
-		persistInTx(benji);
-		persistInTx(tiers);
-		persistInTx(berta);
-		persistInTx(lee);
-		persistInTx(jeffrey);
-		persistInTx(tim);
-		persistInTx(jelena);
-		persistInTx(byrd);
+		manager.setMailService(mockMailService);
+		
+		User benji = new User(1L, "benji", "benji@home", Location.SanFrancisco);
+		User tiers = new User(2L, "tiers", "tiers@home", Location.SanFrancisco);
+		User berta = new User(3L, "berta", "berta@fairfax", Location.SanFrancisco);
+		User lee = new User(4L, "lee", "lee@fairfax", Location.SanFrancisco);
+		User jeffrey = new User(5L, "jeffrey", "jeffrey@dc", Location.SanFrancisco);
+		User tim = new User(6L, "tim", "tim@dc", Location.SanFrancisco);
+		User jelena = new User(7L, "jelena", "jelena@dc", Location.SanFrancisco);
+		User byrd = new User(8L, "byrd", "byrd@dc", Location.SanFrancisco);
 		
 		LunchGroup group1 = new LunchGroup(Location.SanFrancisco, GroupType.Regular);
 		group1.addUserAndKey(benji);
@@ -269,56 +244,44 @@ public class LunchManagerTest {
 		group2.addUserAndKey(jelena);
 		group2.addUserAndKey(byrd);
 		
-		List<LunchGroup> groups = Arrays.asList(group1, group2);
+		List<LunchGroup> groups = CollectionUtil.asList(group1, group2);
 		
 		manager.notifyUsersAboutNewLunchGroups(groups);
+		
+		Mockito.verify(mockMailService, Mockito.times(groups.size())).send(Mockito.any(Message.class));
 	}
 	
 	@Test
-	public void testRegenerateLunchGroups(){
+	@SuppressWarnings("unchecked")
+	public void testGenerateLunchGroups() throws IOException {
 		
-		TestUtils.createUser(datastore, "benji", "benji@home", Location.SanFrancisco, true);
-		TestUtils.createUser(datastore, "tiers", "tiers@home", Location.LosAngeles, true);
-		TestUtils.createUser(datastore, "berta", "berta@fairfax", Location.NewYork, true);
-		TestUtils.createUser(datastore, "lee", "lee@fairfax", Location.SanFrancisco, true);
-		TestUtils.createUser(datastore, "ash", "ash@ashburn", Location.NewYork, true);
-		TestUtils.createUser(datastore, "sam", "sam@donutshop", Location.NewYork, true);
-		TestUtils.createUser(datastore, "jeffrey", "jeffrey@dc", Location.LosAngeles, true);
-		TestUtils.createUser(datastore, "tim", "tim@dc", Location.LosAngeles, true);
-		TestUtils.createUser(datastore, "jelena", "jelena@dc", Location.SanFrancisco, true);
-		TestUtils.createUser(datastore, "byrd", "byrd@dc", Location.SanFrancisco, true);
+		manager.setMailService(mockMailService);
 		
-		manager.regenerateLunchGroups();
+		User benji = new User(1L, "benji", "benji@home", Location.SanFrancisco, GroupType.Regular);
+		User tiers = new User(2L, "tiers", "tiers@home", Location.LosAngeles, GroupType.Regular);
+		User lee = new User(3L, "lee", "lee@fairfax", Location.SanFrancisco, GroupType.Regular);
+		User jelena = new User(4L, "jelena", "jelena@dc", Location.SanFrancisco, GroupType.Regular);
+		User byrd = new User(5L, "byrd", "byrd@dc", Location.SanFrancisco, GroupType.Regular);
 		
-		String week = null;
+		User berta = new User(6L, "berta", "berta@fairfax", Location.NewYork, GroupType.Regular);
+		User ash = new User(7L, "ash", "ash@ashburn", Location.NewYork, GroupType.Regular);
+		User sam = new User(8L, "sam", "sam@donutshop", Location.NewYork, GroupType.Regular);
 		
-		List<LunchGroup> groups = manager.getLunchGroupsWithUsers(week);
+		User jeffrey = new User(9L, "jeffrey", "jeffrey@dc", Location.LosAngeles, GroupType.Regular);
+		User tim = new User(10L, "tim", "tim@dc", Location.LosAngeles, GroupType.Regular);
 		
-		assertEquals(3, groups.size());
-		for( LunchGroup group : groups ){
-			switch( group.getLocation() ){
-			
-			case SanFrancisco :
-				assertTrue(group.contains(benji));
-				assertTrue(group.contains(lee));
-				assertTrue(group.contains(jelena));
-				assertTrue(group.contains(byrd));
-				break;
-				
-			case NewYork :
-				assertTrue(group.contains(berta));
-				assertTrue(group.contains(ash));
-				assertTrue(group.contains(sam));
-				break;
-				
-			case LosAngeles :
-				assertTrue(group.contains(tiers));
-				assertTrue(group.contains(jeffrey));
-				assertTrue(group.contains(tim));
-				break;
-			}
-		}
+		List<User> sanfranciscans = CollectionUtil.asList(benji, tiers, lee, jelena, byrd);
+		List<User> yankees = CollectionUtil.asList(berta, ash, sam);
+		List<User> angels = CollectionUtil.asList(jeffrey, tim);
+		
+		Mockito.when(userDao.getActiveUsersByLocationAndGroupType(Location.SanFrancisco, GroupType.Regular)).thenReturn(sanfranciscans);
+		Mockito.when(userDao.getActiveUsersByLocationAndGroupType(Location.NewYork, GroupType.Regular)).thenReturn(yankees);
+		Mockito.when(userDao.getActiveUsersByLocationAndGroupType(Location.LosAngeles, GroupType.Regular)).thenReturn(angels);
+		
+		manager.generateLunchGroups(GroupType.Regular, true);
+		
+		Mockito.verify(lunchGroupDao, Mockito.times(3)).persistLunchGroups(Mockito.anyList());
+		Mockito.verify(mockMailService, Mockito.times(3)).send(Mockito.any(Message.class));
 	}
-	*/
 
 }

@@ -53,8 +53,7 @@ public class LunchManager {
 	
 	public User createUser(String name, String email, Location location) {
 		PingboardUser pingboardUser = pingboard.getUserByEmail(email);
-		User user = new User(name, email, location);
-		user.setGroupTypes(GroupType.Regular);
+		User user = new User(name, email, location, GroupType.Regular);
 		if (pingboardUser != null) {
 			user.setPingboardId(pingboardUser.getId());
 			user.setPingboardAvatarUrlSmall(pingboardUser.getAvatarUrlSmall());

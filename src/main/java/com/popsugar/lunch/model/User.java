@@ -31,6 +31,21 @@ public class User implements Serializable {
 		this.active = true;
 	}
 	
+	public User(String name, String email, Location location, GroupType type){
+		this(name, email, location);
+		setGroupTypes(type);
+	}
+	
+	public User(Long key, String name, String email, Location location) {
+		this(name, email, location);
+		this.key = key;
+	}
+	
+	public User(Long key, String name, String email, Location location, GroupType type) {
+		this(name, email, location, type);
+		this.key = key;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
