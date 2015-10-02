@@ -12,12 +12,13 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>AdminOnly</web-resource-name>
-  		<url-pattern>/api/lunch/generate-groups</url-pattern>
-  		<url-pattern>/api/lunch/upgrade</url-pattern>
-  	</web-resource-collection>
-  	<auth-constraint>
-  		<role-name>admin</role-name>
-  	</auth-constraint>
+			<url-pattern>/api/lunch/generate-groups</url-pattern>
+			<url-pattern>/api/lunch/upgrade</url-pattern>
+			<url-pattern>/api/lunch/update-users-with-pingboard-data</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin</role-name>
+		</auth-constraint>
 	</security-constraint>
 
 	<servlet>
