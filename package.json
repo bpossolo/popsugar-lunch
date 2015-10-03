@@ -1,6 +1,6 @@
 {
-  "name": "popsugar-lunch-for-four",
-  "version": "6",
+  "name": "popsugar-lunch",
+  "version": "6.0.0",
   "devDependencies": {
     "browser-sync": "2.8.2",
     "coffee-script": "1.9.3",
@@ -12,13 +12,11 @@
     "gulp-ruby-sass": "1.4.0",
     "gulp-util": "3.0.6",
     "gulp-replace": "0.5.4",
-    "lodash": "3.10.1"
+    "gulp-bump": "1.0.0",
+    "connect-history-api-fallback": "1.1.0",
+    "http-proxy": "1.11.2"
   },
   "engines": {
     "node": "0.12.7"
-  },
-  "dependencies": {
-    "connect-history-api-fallback": "1.1.0",
-    "http-proxy": "1.11.2"
   }
 }

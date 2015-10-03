@@ -7,6 +7,7 @@ concat = require 'gulp-concat'
 replace = require 'gulp-replace'
 browserSync = require('browser-sync').create()
 sass = require 'gulp-ruby-sass'
+bump = require 'gulp-bump'
 historyApiFallback = require 'connect-history-api-fallback'
 proxy = require './proxy'
 packageJson = require './package.json'
@@ -15,10 +16,24 @@ packageJson = require './package.json'
 # Variables
 # -----------------------------------------------------------
 
+PomVersionRegexp = /<version>(.+)<\/version>/
 appVersion = packageJson.version
 OutputDir = 'target/popsugar-lunch'
 reloadOpts =
   stream: true
+
+# -----------------------------------------------------------
+# Helper functions
+# -----------------------------------------------------------
+
+# pomXmlVersion is a string that looks like "<version>1.2.3</version>"
+bumpPomXmlVersion = (pomXmlVersion) ->
+  match = PomVersionRegexp.exec pomXmlVersion
+  version = match[1]
+  parts = version.split '.'
+  parts[1] = parseInt(parts[1]) + 1 # increment minor value
+  version = parts.join '.'
+  "<version>#{version}</version>"
 
 # -----------------------------------------------------------
 # Source files
@@ -94,5 +109,15 @@ gulp.task 'serve', ['build'], ->
   gulp.watch scssFiles, ['sass']
   gulp.watch clientScriptFiles, ['client-scripts']
   gulp.watch htmlFiles, ['html']
+
+gulp.task 'bump', ->
+  gulp
+    .src(['bower.json', 'package.json'])
+    .pipe(bump(type: 'minor'))
+    .pipe(gulp.dest('.'))
+  gulp
+    .src('pom.xml')
+    .pipe(replace(PomVersionRegexp, bumpPomXmlVersion))
+    .pipe(gulp.dest('.'))
 
 gulp.task 'default', ['build']
