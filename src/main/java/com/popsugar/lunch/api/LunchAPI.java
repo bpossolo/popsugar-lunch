@@ -71,7 +71,7 @@ public class LunchAPI {
 		if (type == null || type == GroupType.PopsugarPals) {
 			lunchManager.generateLunchGroups(GroupType.PopsugarPals, email);
 		}
-		return Response.status(200).entity("Lunch groups generated").build();
+		return Response.ok("Lunch groups generated").build();
 	}
 	
 	@GET
@@ -93,7 +93,7 @@ public class LunchAPI {
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response createUser(CreateUserDTO dto) {
 		lunchManager.createUser(dto.name, dto.email, dto.location);
-		return Response.status(200).entity("User created").build();
+		return Response.ok("User created").build();
 	}
 	
 	@GET
@@ -118,7 +118,7 @@ public class LunchAPI {
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response linkUsers(BuddiesDTO dto) throws EntityNotFoundException {
 		lunchManager.linkUsers(dto.userAKey, dto.userBKey);
-		return Response.status(200).entity("Users linked").build();
+		return Response.ok("Users linked").build();
 	}
 	
 	@DELETE
@@ -129,7 +129,7 @@ public class LunchAPI {
 		@QueryParam("userBKey") Long userBKey)
 				throws EntityNotFoundException {
 		lunchManager.unlinkUsers(userAKey, userBKey);
-		return Response.status(200).entity("Users unlinked").build();
+		return Response.ok("Users unlinked").build();
 	}
 	
 	@GET
@@ -143,7 +143,7 @@ public class LunchAPI {
 			task.setServletContext(servletContext);
 			task.setDatastore(datastore);
 			task.run();
-			return Response.status(200).entity("Upgrade task " + taskNum + " complete").build();
+			return Response.ok("Upgrade task " + taskNum + " complete").build();
 		}
 		catch(ClassNotFoundException | IllegalAccessException | InstantiationException e){
 			throw new RuntimeException("Unable to execute task [" + className + "]", e);
@@ -155,7 +155,7 @@ public class LunchAPI {
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response unsubscribeFromLunchForFour(@PathParam("userId") Long userId) {
 		lunchManager.deactivateUser(userId);
-		return Response.status(200).entity("Unsubscribed").build();
+		return Response.ok("Unsubscribed").build();
 	}
 	
 	@GET
@@ -163,6 +163,6 @@ public class LunchAPI {
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response updateUsersWithPingboardData() {
 		lunchManager.updateUsersWithPingboardData();
-		return Response.status(200).entity("Users updated with pingboard data").build();
+		return Response.ok("Users updated with pingboard data").build();
 	}
 }
