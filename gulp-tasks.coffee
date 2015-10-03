@@ -16,6 +16,8 @@ packageJson = require './package.json'
 # Variables
 # -----------------------------------------------------------
 
+magenta = gutil.colors.magenta
+cyan = gutil.colors.cyan
 PomVersionRegexp = /<version>(.+)<\/version>/
 appVersion = packageJson.version
 OutputDir = 'target/popsugar-lunch'
@@ -33,6 +35,7 @@ bumpPomXmlVersion = (pomXmlVersion) ->
   parts = version.split '.'
   parts[1] = parseInt(parts[1]) + 1 # increment minor value
   version = parts.join '.'
+  gutil.log "Bumped '#{cyan('pom.xml')}' #{magenta('version')} to: #{cyan(version)}"
   "<version>#{version}</version>"
 
 # -----------------------------------------------------------
