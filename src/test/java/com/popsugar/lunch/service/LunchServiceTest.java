@@ -49,10 +49,8 @@ public class LunchServiceTest {
 		memcache = MemcacheServiceFactory.getMemcacheService();
 		mailService = MailServiceFactory.getMailService();
 		mockMailService = Mockito.mock(MailService.class);
-		
 		userDao = Mockito.mock(UserDAO.class);
 		lunchGroupDao = Mockito.mock(LunchGroupDAO.class);
-		
 		pingboard = Mockito.mock(PingboardService.class);
 		
 		lunchService = new LunchService();
