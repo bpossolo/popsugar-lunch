@@ -23,6 +23,7 @@ public class WebAppInitializer implements ServletContextListener {
 	public static final String LunchService = LunchService.class.getSimpleName();
 	public static final String Datastore = DatastoreService.class.getSimpleName();
 	public static final String RefreshTokenDAO = RefreshTokenDAO.class.getSimpleName();
+	public static final String UserDAO = UserDAO.class.getSimpleName();
 	
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
@@ -45,10 +46,11 @@ public class WebAppInitializer implements ServletContextListener {
 		lunchManager.setLunchGroupDao(lunchGroupDao);
 		lunchManager.setPingboard(pingboard);
 		
-		ServletContext servletContext = contextEvent.getServletContext();
-		servletContext.setAttribute(Datastore, datastore);
-		servletContext.setAttribute(RefreshTokenDAO, refreshTokenDao);
-		servletContext.setAttribute(LunchService, lunchManager);
+		ServletContext context = contextEvent.getServletContext();
+		context.setAttribute(Datastore, datastore);
+		context.setAttribute(UserDAO, userDao);
+		context.setAttribute(RefreshTokenDAO, refreshTokenDao);
+		context.setAttribute(LunchService, lunchManager);
 	}
 
 	@Override

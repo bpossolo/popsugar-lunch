@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Header;
 import com.google.appengine.api.mail.MailService.Message;
@@ -122,18 +121,6 @@ public class LunchService {
 		}
 		
 		return null;
-	}
-	
-	public void deactivateUser(Long userId) throws EntityNotFoundException {
-		userDao.deactivateUser(userId);
-	}
-	
-	public void linkUsers(Long userAKey, Long userBKey) throws EntityNotFoundException {
-		userDao.linkUsers(userAKey, userBKey);
-	}
-	
-	public void unlinkUsers(Long userAKey, Long userBKey) throws EntityNotFoundException {
-		userDao.unlinkUsers(userAKey, userBKey);
 	}
 	
 	public void updateUsersWithPingboardData() {

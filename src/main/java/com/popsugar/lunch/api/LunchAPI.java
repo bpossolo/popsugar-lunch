@@ -29,6 +29,7 @@ import com.popsugar.lunch.api.dto.LocationDTO;
 import com.popsugar.lunch.api.dto.LunchGroupDTO;
 import com.popsugar.lunch.api.dto.UserDTO;
 import com.popsugar.lunch.dao.RefreshTokenDAO;
+import com.popsugar.lunch.dao.UserDAO;
 import com.popsugar.lunch.model.GroupType;
 import com.popsugar.lunch.model.Location;
 import com.popsugar.lunch.model.LunchGroup;
@@ -45,9 +46,11 @@ public class LunchAPI {
 	private LunchService lunchService;
 	private DatastoreService datastore;
 	private RefreshTokenDAO refreshTokenDao;
+	private UserDAO userDao;
 	
 	public LunchAPI(@Context ServletContext context){
 		lunchService = (LunchService)context.getAttribute(WebAppInitializer.LunchService);
+		userDao = (UserDAO)context.getAttribute(WebAppInitializer.UserDAO);
 		refreshTokenDao = (RefreshTokenDAO)context.getAttribute(WebAppInitializer.RefreshTokenDAO);
 		datastore = (DatastoreService)context.getAttribute(WebAppInitializer.Datastore);
 	}
@@ -118,7 +121,7 @@ public class LunchAPI {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response linkUsers(BuddiesDTO dto) throws EntityNotFoundException {
-		lunchService.linkUsers(dto.userAKey, dto.userBKey);
+		userDao.linkUsers(dto.userAKey, dto.userBKey);
 		return Response.ok("Users linked").build();
 	}
 	
@@ -129,7 +132,7 @@ public class LunchAPI {
 		@QueryParam("userAKey") Long userAKey,
 		@QueryParam("userBKey") Long userBKey)
 				throws EntityNotFoundException {
-		lunchService.unlinkUsers(userAKey, userBKey);
+		userDao.unlinkUsers(userAKey, userBKey);
 		return Response.ok("Users unlinked").build();
 	}
 	
@@ -155,7 +158,7 @@ public class LunchAPI {
 	@Path("/unsubscribe/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response unsubscribeFromLunchForFour(@PathParam("userId") Long userId) throws EntityNotFoundException {
-		lunchService.deactivateUser(userId);
+		userDao.deactivateUser(userId);
 		return Response.ok("Unsubscribed").build();
 	}
 	
