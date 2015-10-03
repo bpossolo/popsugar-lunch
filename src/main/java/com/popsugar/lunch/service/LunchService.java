@@ -28,13 +28,13 @@ import com.popsugar.lunch.model.PingboardUser;
 import com.popsugar.lunch.model.User;
 import com.popsugar.lunch.util.UrlUtil;
 
-public class LunchManager {
+public class LunchService {
 
 	//-------------------------------------------------------------------------------------------
 	//Class variables
 	//-------------------------------------------------------------------------------------------
 	
-	private static final Logger log = Logger.getLogger(LunchManager.class.getName());
+	private static final Logger log = Logger.getLogger(LunchService.class.getName());
 	
 	private static final String LunchGroupsRegularMemcacheKey = "lunch-groups-regular";
 	private static final String LunchGroupsPalsMemcacheKey = "lunch-groups-pals";

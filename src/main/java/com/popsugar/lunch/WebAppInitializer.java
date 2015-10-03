@@ -15,14 +15,13 @@ import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.popsugar.lunch.dao.LunchGroupDAO;
 import com.popsugar.lunch.dao.RefreshTokenDAO;
 import com.popsugar.lunch.dao.UserDAO;
-import com.popsugar.lunch.service.LunchManager;
+import com.popsugar.lunch.service.LunchService;
 import com.popsugar.lunch.service.PingboardService;
 
 public class WebAppInitializer implements ServletContextListener {
 	
-	public static final String LunchManager = LunchManager.class.getSimpleName();
+	public static final String LunchService = LunchService.class.getSimpleName();
 	public static final String Datastore = DatastoreService.class.getSimpleName();
-	public static final String PingboardService = PingboardService.class.getSimpleName();
 	public static final String RefreshTokenDAO = RefreshTokenDAO.class.getSimpleName();
 	
 	@Override
@@ -39,18 +38,17 @@ public class WebAppInitializer implements ServletContextListener {
 		
 		PingboardService pingboard = new PingboardService(urlFetchService, refreshTokenDao);
 		
-		LunchManager lunchManager = new LunchManager();
+		LunchService lunchManager = new LunchService();
 		lunchManager.setMemcache(memcache);
-		lunchManager.setLunchGroupDao(lunchGroupDao);
-		lunchManager.setUserDao(userDao);
-		lunchManager.setPingboard(pingboard);
 		lunchManager.setMailService(mailService);
+		lunchManager.setUserDao(userDao);
+		lunchManager.setLunchGroupDao(lunchGroupDao);
+		lunchManager.setPingboard(pingboard);
 		
 		ServletContext servletContext = contextEvent.getServletContext();
 		servletContext.setAttribute(Datastore, datastore);
 		servletContext.setAttribute(RefreshTokenDAO, refreshTokenDao);
-		servletContext.setAttribute(PingboardService, pingboard);
-		servletContext.setAttribute(LunchManager, lunchManager);
+		servletContext.setAttribute(LunchService, lunchManager);
 	}
 
 	@Override

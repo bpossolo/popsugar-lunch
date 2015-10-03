@@ -34,7 +34,7 @@ import com.popsugar.lunch.model.Location;
 import com.popsugar.lunch.model.LunchGroup;
 import com.popsugar.lunch.model.User;
 import com.popsugar.lunch.oauth.OAuthApp;
-import com.popsugar.lunch.service.LunchManager;
+import com.popsugar.lunch.service.LunchService;
 import com.popsugar.lunch.upgrade.UpgradeTask;
 
 @Path("/lunch")
@@ -42,12 +42,12 @@ public class LunchAPI {
 	
 	private static final Logger log = Logger.getLogger(LunchAPI.class.getName());
 	
-	private LunchManager lunchManager;
+	private LunchService lunchService;
 	private DatastoreService datastore;
 	private RefreshTokenDAO refreshTokenDao;
 	
 	public LunchAPI(@Context ServletContext context){
-		lunchManager = (LunchManager)context.getAttribute(WebAppInitializer.LunchManager);
+		lunchService = (LunchService)context.getAttribute(WebAppInitializer.LunchService);
 		refreshTokenDao = (RefreshTokenDAO)context.getAttribute(WebAppInitializer.RefreshTokenDAO);
 		datastore = (DatastoreService)context.getAttribute(WebAppInitializer.Datastore);
 	}
@@ -58,7 +58,7 @@ public class LunchAPI {
 	public LocationDTO getMyLocation(@Context HttpServletRequest request){
 		String city = request.getHeader("X-AppEngine-City");
 		String state = request.getHeader("X-AppEngine-Region");
-		Location location = lunchManager.estimateUserLocation(city, state);
+		Location location = lunchService.estimateUserLocation(city, state);
 		LocationDTO dto = new LocationDTO(city, state, location);
 		return dto;
 	}
@@ -70,10 +70,10 @@ public class LunchAPI {
 			@QueryParam("type") GroupType type,
 			@QueryParam("email") @DefaultValue("false") boolean email) {
 		if (type == null || type == GroupType.Regular) {
-			lunchManager.generateLunchGroups(GroupType.Regular, email);
+			lunchService.generateLunchGroups(GroupType.Regular, email);
 		}
 		if (type == null || type == GroupType.PopsugarPals) {
-			lunchManager.generateLunchGroups(GroupType.PopsugarPals, email);
+			lunchService.generateLunchGroups(GroupType.PopsugarPals, email);
 		}
 		return Response.ok("Lunch groups generated").build();
 	}
@@ -82,7 +82,7 @@ public class LunchAPI {
 	@Path("/users")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<UserDTO> getUsers() {
-		List<User> users = lunchManager.getActiveUsers();
+		List<User> users = lunchService.getActiveUsers();
 		List<UserDTO> result = new ArrayList<>(users.size());
 		for (User user : users) {
 			UserDTO dto = new UserDTO(user);
@@ -96,7 +96,7 @@ public class LunchAPI {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response createUser(CreateUserDTO dto) {
-		lunchManager.createUser(dto.name, dto.email, dto.location);
+		lunchService.createUser(dto.name, dto.email, dto.location);
 		return Response.ok("User created").build();
 	}
 	
@@ -104,7 +104,7 @@ public class LunchAPI {
 	@Path("/groups")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<LunchGroupDTO> getLunchGroups(@QueryParam("type") GroupType type) {
-		List<LunchGroup> groups = lunchManager.getLunchGroupsWithUsers(type);
+		List<LunchGroup> groups = lunchService.getLunchGroupsWithUsers(type);
 		ArrayList<LunchGroupDTO> result = new ArrayList<>(groups.size());
 		for (LunchGroup group : groups){
 			LunchGroupDTO dto = new LunchGroupDTO(group);
@@ -118,7 +118,7 @@ public class LunchAPI {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response linkUsers(BuddiesDTO dto) throws EntityNotFoundException {
-		lunchManager.linkUsers(dto.userAKey, dto.userBKey);
+		lunchService.linkUsers(dto.userAKey, dto.userBKey);
 		return Response.ok("Users linked").build();
 	}
 	
@@ -129,7 +129,7 @@ public class LunchAPI {
 		@QueryParam("userAKey") Long userAKey,
 		@QueryParam("userBKey") Long userBKey)
 				throws EntityNotFoundException {
-		lunchManager.unlinkUsers(userAKey, userBKey);
+		lunchService.unlinkUsers(userAKey, userBKey);
 		return Response.ok("Users unlinked").build();
 	}
 	
@@ -155,7 +155,7 @@ public class LunchAPI {
 	@Path("/unsubscribe/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response unsubscribeFromLunchForFour(@PathParam("userId") Long userId) throws EntityNotFoundException {
-		lunchManager.deactivateUser(userId);
+		lunchService.deactivateUser(userId);
 		return Response.ok("Unsubscribed").build();
 	}
 	
@@ -163,7 +163,7 @@ public class LunchAPI {
 	@Path("/update-users-with-pingboard-data")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response updateUsersWithPingboardData() {
-		lunchManager.updateUsersWithPingboardData();
+		lunchService.updateUsersWithPingboardData();
 		return Response.ok("Users updated with pingboard data").build();
 	}
 	
