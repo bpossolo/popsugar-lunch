@@ -8,33 +8,35 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
-import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalURLFetchServiceTestConfig;
+import com.popsugar.lunch.dao.RefreshTokenDAO;
 import com.popsugar.lunch.model.PingboardUser;
+import com.popsugar.lunch.oauth.AccessToken;
+import com.popsugar.lunch.oauth.OAuthApp;
 
 public class PingboardServiceTest {
 	
 	private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
-			new LocalMemcacheServiceTestConfig(),
 			new LocalURLFetchServiceTestConfig());
 	
 	private PingboardService pingboardService;
+	private RefreshTokenDAO refreshTokenDao;
 	
 	@Before
-	public void setUp(){
+	public void setUp() throws Exception {
 		helper.setUp();
-		MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
 		URLFetchService urlFetchService = URLFetchServiceFactory.getURLFetchService();
 		
-		pingboardService = new PingboardService();
-		pingboardService.setMemcache(memcache);
-		pingboardService.setUrlFetchService(urlFetchService);
+		String refreshToken = "4f0411394fa9d2a6af0c90903c390eecbb43d1ca983f17caee6a415cb8ff0e90";
+		refreshTokenDao = Mockito.mock(RefreshTokenDAO.class);
+		Mockito.when(refreshTokenDao.getRefreshToken(OAuthApp.Pingboard)).thenReturn(refreshToken);
+		
+		pingboardService = new PingboardService(urlFetchService, refreshTokenDao);
 	}
 	
 	@After
@@ -45,8 +47,9 @@ public class PingboardServiceTest {
 	@Test
 	public void testInitAccessToken() {
 		pingboardService.initAccessToken();
-		String accessToken = pingboardService.getAccessToken();
+		AccessToken accessToken = pingboardService.getAccessToken();
 		Assert.assertNotNull(accessToken);
+		Assert.assertNotNull(accessToken.getValue());
 	}
 	
 	@Test

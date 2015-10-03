@@ -42,8 +42,6 @@ public class UserDAO {
 	
 	private DatastoreService datastore;
 	
-	public UserDAO(){}
-	
 	public UserDAO(DatastoreService datastore){
 		this.datastore = datastore;
 	}

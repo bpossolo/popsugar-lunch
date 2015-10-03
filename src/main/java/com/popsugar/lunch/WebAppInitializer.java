@@ -13,6 +13,7 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.popsugar.lunch.dao.LunchGroupDAO;
+import com.popsugar.lunch.dao.RefreshTokenDAO;
 import com.popsugar.lunch.dao.UserDAO;
 import com.popsugar.lunch.service.LunchManager;
 import com.popsugar.lunch.service.PingboardService;
@@ -22,7 +23,7 @@ public class WebAppInitializer implements ServletContextListener {
 	public static final String LunchManager = LunchManager.class.getSimpleName();
 	public static final String Datastore = DatastoreService.class.getSimpleName();
 	public static final String PingboardService = PingboardService.class.getSimpleName();
-	public static final String UserDAO = UserDAO.class.getSimpleName();
+	public static final String RefreshTokenDAO = RefreshTokenDAO.class.getSimpleName();
 	
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
@@ -32,15 +33,11 @@ public class WebAppInitializer implements ServletContextListener {
 		URLFetchService urlFetchService = URLFetchServiceFactory.getURLFetchService();
 		MailService mailService = MailServiceFactory.getMailService();
 		
-		PingboardService pingboard = new PingboardService();
-		pingboard.setUrlFetchService(urlFetchService);
-		pingboard.setMemcache(memcache);
+		LunchGroupDAO lunchGroupDao = new LunchGroupDAO(datastore);
+		UserDAO userDao = new UserDAO(datastore);
+		RefreshTokenDAO refreshTokenDao = new RefreshTokenDAO(datastore);
 		
-		LunchGroupDAO lunchGroupDao = new LunchGroupDAO();
-		lunchGroupDao.setDatastore(datastore);
-		
-		UserDAO userDao = new UserDAO();
-		userDao.setDatastore(datastore);
+		PingboardService pingboard = new PingboardService(urlFetchService, refreshTokenDao);
 		
 		LunchManager lunchManager = new LunchManager();
 		lunchManager.setMemcache(memcache);
@@ -50,11 +47,10 @@ public class WebAppInitializer implements ServletContextListener {
 		lunchManager.setMailService(mailService);
 		
 		ServletContext servletContext = contextEvent.getServletContext();
-		
-		servletContext.setAttribute(LunchManager, lunchManager);
 		servletContext.setAttribute(Datastore, datastore);
+		servletContext.setAttribute(RefreshTokenDAO, refreshTokenDao);
 		servletContext.setAttribute(PingboardService, pingboard);
-		servletContext.setAttribute(UserDAO, userDao);
+		servletContext.setAttribute(LunchManager, lunchManager);
 	}
 
 	@Override

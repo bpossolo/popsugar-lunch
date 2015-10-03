@@ -139,9 +139,9 @@ public class LunchManager {
 	public void updateUsersWithPingboardData() {
 		List<User> users = userDao.getActiveUsers();
 		List<PingboardUser> pingboardUsers = pingboard.getAllUsers();
-		Map<String,PingboardUser> map = pingboard.buildEmailUserMap(pingboardUsers);
+		Map<String,PingboardUser> map = PingboardUser.mapByEmail(pingboardUsers);
 		
-		List<User> usersToUpdate = new ArrayList<User>();
+		List<User> usersToUpdate = new ArrayList<>();
 		
 		for (User user : users) {
 			String email = user.getEmail();

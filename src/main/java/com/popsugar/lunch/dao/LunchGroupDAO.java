@@ -33,8 +33,6 @@ public class LunchGroupDAO {
 	
 	private DatastoreService datastore;
 	
-	public LunchGroupDAO(){}
-	
 	public LunchGroupDAO(DatastoreService datastore){
 		this.datastore = datastore;
 	}
@@ -57,10 +55,6 @@ public class LunchGroupDAO {
 	public void persistLunchGroups(List<LunchGroup> groups){
 		List<Entity> entities = encodeEntities(groups);
 		datastore.put(entities);
-	}
-	
-	public void setDatastore(DatastoreService datastore) {
-		this.datastore = datastore;
 	}
 	
 	private List<Entity> getActiveLunchGroupEntitiesByType(GroupType type) {

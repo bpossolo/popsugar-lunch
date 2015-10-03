@@ -28,10 +28,12 @@ import com.popsugar.lunch.api.dto.CreateUserDTO;
 import com.popsugar.lunch.api.dto.LocationDTO;
 import com.popsugar.lunch.api.dto.LunchGroupDTO;
 import com.popsugar.lunch.api.dto.UserDTO;
+import com.popsugar.lunch.dao.RefreshTokenDAO;
 import com.popsugar.lunch.model.GroupType;
 import com.popsugar.lunch.model.Location;
 import com.popsugar.lunch.model.LunchGroup;
 import com.popsugar.lunch.model.User;
+import com.popsugar.lunch.oauth.OAuthApp;
 import com.popsugar.lunch.service.LunchManager;
 import com.popsugar.lunch.upgrade.UpgradeTask;
 
@@ -42,10 +44,12 @@ public class LunchAPI {
 	
 	private LunchManager lunchManager;
 	private DatastoreService datastore;
+	private RefreshTokenDAO oauthRefreshTokenDao;
 	
-	public LunchAPI(@Context ServletContext servletContext){
-		lunchManager = (LunchManager)servletContext.getAttribute(WebAppInitializer.LunchManager);
-		datastore = (DatastoreService)servletContext.getAttribute(WebAppInitializer.Datastore);
+	public LunchAPI(@Context ServletContext context){
+		lunchManager = (LunchManager)context.getAttribute(WebAppInitializer.LunchManager);
+		oauthRefreshTokenDao = (RefreshTokenDAO)context.getAttribute(WebAppInitializer.RefreshTokenDAO);
+		datastore = (DatastoreService)context.getAttribute(WebAppInitializer.Datastore);
 	}
 	
 	@GET
@@ -161,5 +165,15 @@ public class LunchAPI {
 	public Response updateUsersWithPingboardData() {
 		lunchManager.updateUsersWithPingboardData();
 		return Response.ok("Users updated with pingboard data").build();
+	}
+	
+	@POST
+	@Path("/oauth-refresh-token")
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response setOAuthRefreshToken(
+			@QueryParam("app") OAuthApp app,
+			@QueryParam("refresh_token") String refreshToken) {
+		oauthRefreshTokenDao.saveRefreshToken(app, refreshToken);
+		return Response.ok("Refresh token saved").build();
 	}
 }
