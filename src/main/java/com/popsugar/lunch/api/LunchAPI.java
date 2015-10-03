@@ -43,10 +43,10 @@ public class LunchAPI {
 	
 	private static final Logger log = Logger.getLogger(LunchAPI.class.getName());
 	
-	private LunchService lunchService;
-	private DatastoreService datastore;
-	private RefreshTokenDAO refreshTokenDao;
-	private UserDAO userDao;
+	private final LunchService lunchService;
+	private final DatastoreService datastore;
+	private final RefreshTokenDAO refreshTokenDao;
+	private final UserDAO userDao;
 	
 	public LunchAPI(@Context ServletContext context){
 		lunchService = (LunchService)context.getAttribute(WebAppInitializer.LunchService);
