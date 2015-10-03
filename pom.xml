@@ -23,8 +23,8 @@
 	</scm>
 
 	<properties>
-		<gaeVersion>1.9.25</gaeVersion>
-		<jerseyVersion>2.21</jerseyVersion>
+		<gaeVersion>1.9.27</gaeVersion>
+		<jerseyVersion>2.22</jerseyVersion>
 		<slf4jVersion>1.7.12</slf4jVersion>
 		<webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
