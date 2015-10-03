@@ -8,11 +8,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.mail.MailService;
+import com.google.appengine.api.mail.MailService.Header;
 import com.google.appengine.api.mail.MailService.Message;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.popsugar.lunch.dao.LunchGroupDAO;
@@ -23,6 +25,7 @@ import com.popsugar.lunch.model.LunchGroup;
 import com.popsugar.lunch.model.Pair;
 import com.popsugar.lunch.model.PingboardUser;
 import com.popsugar.lunch.model.User;
+import com.popsugar.lunch.util.UrlUtil;
 
 public class LunchManager {
 
@@ -131,14 +134,7 @@ public class LunchManager {
 	}
 	
 	public void deactivateUser(Long userId) {
-		try {
-			User user = userDao.getUserByKey(userId);
-			user.setActive(false);
-			userDao.updateUser(user);
-		}
-		catch(EntityNotFoundException e) {
-			// TODO do we care?
-		}
+		userDao.deactivateUser(userId);
 	}
 	
 	public void linkUsers(Long userAKey, Long userBKey) throws EntityNotFoundException {
@@ -173,37 +169,54 @@ public class LunchManager {
 	//Package protected methods
 	//-------------------------------------------------------------------------------------------
 	
+	Set<String> getOtherEmails(LunchGroup group, User userToExclude) {
+		Set<String> emails = group.getEmails();
+		emails.remove(userToExclude.getEmail());
+		return emails;
+	}
+	
 	void notifyUsersAboutNewLunchGroups(List<LunchGroup> lunchGroups){
 		
-		for( LunchGroup group : lunchGroups ){
+		String week = getCurrentWeek();
+		String sender = "PopSugar Lunch for Four <noreply@popsugar-lunch.appspotmail.com>";
+		String subject = "Lunch for Four";
+		
+		for (LunchGroup group : lunchGroups) {
 			
-			StringBuilder body = new StringBuilder()
-				.append(getCurrentWeek())
-				.append("\n\nYour upcoming Lunch for Four consists of:\n\n");
-			
-			ArrayList<String> recipients = new ArrayList<>();
-			
-			for( User user : group.getUsers() ){
-				recipients.add(user.getEmail());
-				body.append(" - ").append(user.getName());
+			StringBuilder memberList = new StringBuilder();
+			for (User user: group.getUsers()) {
+				memberList.append(" - ").append(user.getName());
 				if( group.isCoordinatedBy(user) )
-					body.append(" (please coordinate the exact location/date)");
-				body.append('\n');
+					memberList.append(" (please coordinate the exact location/date)");
+				memberList.append('\n');
 			}
 			
-			body.append("\nIf you know anyone that would like to join Lunch for Four, feel free to invite them via http://lunch.popsugar.com\n\n")
-			.append("If you would like to be removed from Lunch for Four, please email Benjamin Possolo (bpossolo@popsugar.com) or Human Resources (hr@popsugar.com)");
-			
-			Message msg = new Message();
-			msg.setSender("PopSugar Lunch for Four <noreply@popsugar-lunch.appspotmail.com>");
-			msg.setBcc(recipients);
-			msg.setSubject("Lunch for Four");
-			msg.setTextBody(body.toString());
-			try{
-				mailService.send(msg);
-			}
-			catch(IOException e){
-				log.log(Level.SEVERE, "Failed to send email to {0}" + recipients, e);
+			for (User user: group.getUsers()) {
+				String unsubscribeUrl = UrlUtil.getUnsubscribeUrl(user);
+				
+				StringBuilder body = new StringBuilder(week)
+					.append("\n\n")
+					.append("Your upcoming Lunch for Four consists of:")
+					.append("\n\n")
+					.append(memberList)
+					.append('\n')
+					.append("If you know anyone that would like to join Lunch for Four, feel free to invite them via http://lunch.popsugar.com")
+					.append("\n\n")
+					.append("If you would like to be removed from Lunch for Four, click here ")
+					.append(unsubscribeUrl);
+				
+				String to = user.getEmail();
+				Set<String> cc = getOtherEmails(group, user);
+				Header listUnsubscribe = new Header("List-Unsubscribe", "<" + unsubscribeUrl + ">");
+				Message msg = new Message(sender, to, subject, body.toString());
+				msg.setCc(cc);
+				msg.setHeaders(listUnsubscribe);
+				try{
+					mailService.send(msg);
+				}
+				catch(IOException e){
+					log.log(Level.SEVERE, "Failed to send email to " + user.getEmail(), e);
+				}
 			}
 		}
 	}

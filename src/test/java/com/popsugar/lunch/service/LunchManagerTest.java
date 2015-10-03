@@ -3,6 +3,7 @@ package com.popsugar.lunch.service;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.After;
@@ -233,22 +234,29 @@ public class LunchManagerTest {
 		User byrd = new User(8L, "byrd", "byrd@dc", Location.SanFrancisco);
 		
 		LunchGroup group1 = new LunchGroup(Location.SanFrancisco, GroupType.Regular);
-		group1.addUserAndKey(benji);
-		group1.addUserAndKey(tiers);
-		group1.addUserAndKey(berta);
-		group1.addUserAndKey(lee);
+		group1.addUsersAndKeys(benji, tiers, berta, lee);
 		
 		LunchGroup group2 = new LunchGroup(Location.SanFrancisco, GroupType.Regular);
-		group2.addUserAndKey(jeffrey);
-		group2.addUserAndKey(tim);
-		group2.addUserAndKey(jelena);
-		group2.addUserAndKey(byrd);
+		group2.addUsersAndKeys(jeffrey, tim, jelena, byrd);
 		
 		List<LunchGroup> groups = CollectionUtil.asList(group1, group2);
-		
 		manager.notifyUsersAboutNewLunchGroups(groups);
 		
-		Mockito.verify(mockMailService, Mockito.times(groups.size())).send(Mockito.any(Message.class));
+		Mockito.verify(mockMailService, Mockito.times(8)).send(Mockito.any(Message.class));
+	}
+	
+	@Test
+	public void testNotifyUsersAboutNewLunchGroupsPrintToConsole() throws IOException {
+		manager.setMailService(mailService);
+		
+		User benji = new User(1L, "benji", "benji@home", Location.SanFrancisco);
+		User rick = new User(2L, "rick", "rick@home", Location.SanFrancisco);
+		
+		LunchGroup group = new LunchGroup(Location.SanFrancisco, GroupType.Regular);
+		group.addUsersAndKeys(benji, rick);
+		
+		List<LunchGroup> groups = Collections.singletonList(group);
+		manager.notifyUsersAboutNewLunchGroups(groups);
 	}
 	
 	@Test
@@ -281,7 +289,7 @@ public class LunchManagerTest {
 		manager.generateLunchGroups(GroupType.Regular, true);
 		
 		Mockito.verify(lunchGroupDao, Mockito.times(3)).persistLunchGroups(Mockito.anyList());
-		Mockito.verify(mockMailService, Mockito.times(3)).send(Mockito.any(Message.class));
+		Mockito.verify(mockMailService, Mockito.times(10)).send(Mockito.any(Message.class));
 	}
 
 }

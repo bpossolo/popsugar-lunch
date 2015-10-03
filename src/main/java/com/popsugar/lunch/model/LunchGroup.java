@@ -3,7 +3,11 @@ package com.popsugar.lunch.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
 
 public class LunchGroup implements Serializable {
 	
@@ -72,6 +76,12 @@ public class LunchGroup implements Serializable {
 			coordinatorKey = userKey;
 	}
 	
+	public void addUsersAndKeys(User...users) {
+		for (User user : users) {
+			addUserAndKey(user);
+		}
+	}
+	
 	public void addUser(User user){
 		if( users == null )
 			users = new ArrayList<User>();
@@ -90,6 +100,16 @@ public class LunchGroup implements Serializable {
 			return true;
 		boolean emailExists = users != null && users.contains(user);
 		return emailExists;
+	}
+	
+	public Set<String> getEmails() {
+		Set<String> emails = new HashSet<>();
+		if (CollectionUtils.isNotEmpty(users)) {
+			for (User user : users) {
+				emails.add(user.getEmail());
+			}
+		}
+		return emails;
 	}
 	
 	public int size(){

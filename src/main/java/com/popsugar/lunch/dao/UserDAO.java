@@ -1,9 +1,12 @@
 package com.popsugar.lunch.dao;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.appengine.api.datastore.DatastoreFailureException;
 import com.google.appengine.api.datastore.DatastoreService;
@@ -25,6 +28,8 @@ import com.popsugar.lunch.util.DatastoreUtil;
 
 public class UserDAO {
 	
+	private static final Logger log = Logger.getLogger(UserDAO.class.getName());
+	
 	public static final String Kind = User.class.getSimpleName();
 	public static final String EmailProp = "email";
 	public static final String ActiveProp = "active";
@@ -45,13 +50,34 @@ public class UserDAO {
 	
 	public void createUser(User user){
 		Query q = new Query(Kind).setFilter(new FilterPredicate(EmailProp, FilterOperator.EQUAL, user.getEmail()));
-		int count = datastore.prepare(q).countEntities(FetchOptions.Builder.withDefaults());
-		if (count == 0) {
+		List<Entity> entities = datastore.prepare(q).asList(FetchOptions.Builder.withDefaults());
+		if (entities.isEmpty()) {
+			log.log(Level.INFO, "Creating user {0}", user.getEmail());
 			Entity userEntity = encodeEntity(user);
 			Key key = datastore.put(userEntity);
 			user.setKey(key.getId());
 		}
-		// TODO re-activate the user if one already exists and update name
+		else {
+			log.log(Level.INFO, "Updating user {0}", user.getEmail());
+			Entity entity = entities.get(0);
+			entity.setProperty(NameProp, user.getName());
+			entity.setProperty(EmailProp, user.getEmail());
+			entity.setProperty(ActiveProp, true);
+			DatastoreUtil.setEnum(entity, LocationProp, user.getLocation());
+			datastore.put(entity);
+		}
+	}
+	
+	public void deactivateUser(Long userId) {
+		try {
+			Key key = KeyFactory.createKey(Kind, userId);
+			Entity e = datastore.get(key);
+			e.setProperty(ActiveProp, false);
+			datastore.put(e);
+		}
+		catch(EntityNotFoundException e) {
+			log.log(Level.WARNING, "Cannot deactivate user {0} because it doesn't exist", userId);
+		}
 	}
 	
 	public void linkUsers(Long userAId, Long userBId) throws EntityNotFoundException {
@@ -69,10 +95,7 @@ public class UserDAO {
 			userB.setProperty(BuddyKeyProp, userAId);
 			DatastoreUtil.setEnumList(userB, GroupTypesProp, GroupType.PopsugarPals.asList());
 			
-			List<Entity> users = new ArrayList<>(2);
-			users.add(userA);
-			users.add(userB);
-			
+			List<Entity> users = Arrays.asList(userA, userB);
 			datastore.put(tx, users);
 			tx.commit();
 		}
@@ -95,10 +118,7 @@ public class UserDAO {
 			userA.setProperty(BuddyKeyProp, null);
 			userB.setProperty(BuddyKeyProp, null);
 			
-			List<Entity> users = new ArrayList<>(2);
-			users.add(userA);
-			users.add(userB);
-			
+			List<Entity> users = Arrays.asList(userA, userB);
 			datastore.put(tx, users);
 			tx.commit();
 		}
@@ -158,7 +178,7 @@ public class UserDAO {
 			e = new Entity(Kind, user.getKey());
 		}
 		e.setProperty(NameProp, user.getName());
-		e.setProperty(ActiveProp, true);
+		e.setProperty(ActiveProp, user.isActive());
 		e.setProperty(EmailProp, user.getEmail());
 		e.setProperty(PingboardIdProp, user.getPingboardId());
 		e.setProperty(PingboardAvatarUrlSmallProp, user.getPingboardAvatarUrlSmall());
