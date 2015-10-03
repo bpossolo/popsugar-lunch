@@ -44,11 +44,11 @@ public class LunchAPI {
 	
 	private LunchManager lunchManager;
 	private DatastoreService datastore;
-	private RefreshTokenDAO oauthRefreshTokenDao;
+	private RefreshTokenDAO refreshTokenDao;
 	
 	public LunchAPI(@Context ServletContext context){
 		lunchManager = (LunchManager)context.getAttribute(WebAppInitializer.LunchManager);
-		oauthRefreshTokenDao = (RefreshTokenDAO)context.getAttribute(WebAppInitializer.RefreshTokenDAO);
+		refreshTokenDao = (RefreshTokenDAO)context.getAttribute(WebAppInitializer.RefreshTokenDAO);
 		datastore = (DatastoreService)context.getAttribute(WebAppInitializer.Datastore);
 	}
 	
@@ -173,7 +173,7 @@ public class LunchAPI {
 	public Response setOAuthRefreshToken(
 			@QueryParam("app") OAuthApp app,
 			@QueryParam("refresh_token") String refreshToken) {
-		oauthRefreshTokenDao.saveRefreshToken(app, refreshToken);
+		refreshTokenDao.saveRefreshToken(app, refreshToken);
 		return Response.ok("Refresh token saved").build();
 	}
 }
