@@ -2,6 +2,7 @@ package com.popsugar.lunch.dao;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -9,8 +10,8 @@ import java.util.logging.Logger;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.popsugar.lunch.model.GroupType;
@@ -27,6 +28,8 @@ public class LunchGroupDAO {
 	public static final String LocationProp = "location";
 	public static final String UserKeysProp = "userKeys";
 	public static final String TypeProp = "type";
+	public static final String ActiveProp = "active";
+	public static final String CreatedProp = "created";
 	
 	private DatastoreService datastore;
 	
@@ -36,21 +39,19 @@ public class LunchGroupDAO {
 		this.datastore = datastore;
 	}
 	
-	public List<LunchGroup> getLunchGroups(GroupType groupType){
-		Query q = new Query(Kind).setFilter(new FilterPredicate(TypeProp, FilterOperator.EQUAL, groupType.name()));
-		List<Entity> entities = datastore.prepare(q).asList(FetchOptions.Builder.withDefaults());
+	public List<LunchGroup> getActiveLunchGroupsByType(GroupType groupType){
+		List<Entity> entities = getActiveLunchGroupEntitiesByType(groupType);
 		List<LunchGroup> groups = decodeEntities(entities);
 		return groups;
 	}
 	
-	public void deleteLunchGroups(GroupType groupType){
-		log.log(Level.INFO, "Deleting {0} lunch groups", groupType);
-		Query q = new Query(Kind)
-			.setFilter(new FilterPredicate(TypeProp, FilterOperator.EQUAL, groupType.name()))
-			.setKeysOnly();
-		List<Entity> entities = datastore.prepare(q).asList(FetchOptions.Builder.withDefaults());
-		List<Key> keys = DatastoreUtil.getKeys(entities);
-		datastore.delete(keys);
+	public void deactivateCurrentLunchGroups(GroupType groupType){
+		log.log(Level.INFO, "Deactivating {0} lunch groups", groupType);
+		List<Entity> entities = getActiveLunchGroupEntitiesByType(groupType);
+		for (Entity entity : entities) {
+			entity.setProperty(ActiveProp, false);
+		}
+		datastore.put(entities);
 	}
 	
 	public void persistLunchGroups(List<LunchGroup> groups){
@@ -62,10 +63,23 @@ public class LunchGroupDAO {
 		this.datastore = datastore;
 	}
 	
+	private List<Entity> getActiveLunchGroupEntitiesByType(GroupType type) {
+		Query q = new Query(Kind).setFilter(
+			CompositeFilterOperator.and(
+				new FilterPredicate(ActiveProp, FilterOperator.EQUAL, true),
+				new FilterPredicate(TypeProp, FilterOperator.EQUAL, type.name())
+			)
+		);
+		List<Entity> entities = datastore.prepare(q).asList(FetchOptions.Builder.withDefaults());
+		return entities;
+	}
+	
 	private Entity encodeEntity(LunchGroup group) {
 		Entity e = new Entity(Kind);
 		e.setProperty(CoordinatorKeyProp, group.getCoordinatorKey());
 		e.setProperty(UserKeysProp, group.getUserKeys());
+		e.setProperty(ActiveProp, group.isActive());
+		e.setProperty(CreatedProp, group.getCreated());
 		DatastoreUtil.setEnum(e, TypeProp, group.getType());
 		DatastoreUtil.setEnum(e, LocationProp, group.getLocation());
 		return e;
@@ -85,6 +99,8 @@ public class LunchGroupDAO {
 		Long coordinatorKey = (Long)e.getProperty(CoordinatorKeyProp);
 		Location location = DatastoreUtil.getEnum(e, LocationProp, Location.class);
 		GroupType type = DatastoreUtil.getEnum(e, TypeProp, GroupType.class);
+		Boolean active = (Boolean)e.getProperty(ActiveProp);
+		Date created = (Date)e.getProperty(CreatedProp);
 		@SuppressWarnings("unchecked")
 		ArrayList<Long> userKeys = (ArrayList<Long>)e.getProperty(UserKeysProp);
 		
@@ -94,7 +110,8 @@ public class LunchGroupDAO {
 		group.setUserKeys(userKeys);
 		group.setLocation(location);
 		group.setType(type);
-		
+		group.setActive(active);
+		group.setCreated(created);
 		return group;
 	}
 	

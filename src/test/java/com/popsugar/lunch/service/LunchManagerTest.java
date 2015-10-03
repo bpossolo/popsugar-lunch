@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.After;
@@ -94,9 +95,9 @@ public class LunchManagerTest {
 		group2.addUserAndKey(tom);
 		
 		List<LunchGroup> groups = Arrays.asList(group1, group2);
-		Mockito.when(lunchGroupDao.getLunchGroups(GroupType.Regular)).thenReturn(groups);
+		Mockito.when(lunchGroupDao.getActiveLunchGroupsByType(GroupType.Regular)).thenReturn(groups);
 		
-		List<LunchGroup> result = manager.getLunchGroupsWithUsers("2015-02-20", GroupType.Regular);
+		List<LunchGroup> result = manager.getLunchGroupsWithUsers(GroupType.Regular);
 		
 		Assert.assertEquals(2, result.size());
 		Assert.assertEquals(benji.getName(), groups.get(0).getUsers().get(0).getName());
@@ -123,7 +124,9 @@ public class LunchManagerTest {
 		
 		List<LunchGroup> groups = CollectionUtil.singletonList(group);
 		
-		manager.distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, undersizedGroup);
+		Date now = new Date();
+		
+		manager.distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, undersizedGroup, now);
 		
 		Assert.assertEquals(5, group.size());
 		Assert.assertEquals("ash", group.getUsers().get(4).getName());
@@ -151,8 +154,9 @@ public class LunchManagerTest {
 		undersizedGroup.addUserAndKey(sam);
 		
 		List<LunchGroup> groups = CollectionUtil.singletonList(group);
+		Date now = new Date();
 		
-		manager.distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, undersizedGroup);
+		manager.distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, undersizedGroup, now);
 		
 		LunchGroup group1 = groups.get(0);
 		LunchGroup group2 = groups.get(1);
@@ -200,8 +204,9 @@ public class LunchManagerTest {
 		undersizedGroup.addUserAndKey(sam);
 		
 		List<LunchGroup> groups = CollectionUtil.asList(group1, group2);
+		Date now = new Date();
 		
-		manager.distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, undersizedGroup);
+		manager.distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, undersizedGroup, now);
 		
 		Assert.assertEquals(5, group1.size());
 		Assert.assertEquals(5, group2.size());

@@ -49,35 +49,29 @@ public class UserDAO {
 	}
 	
 	public void createUser(User user){
-		Query q = new Query(Kind).setFilter(new FilterPredicate(EmailProp, FilterOperator.EQUAL, user.getEmail()));
-		List<Entity> entities = datastore.prepare(q).asList(FetchOptions.Builder.withDefaults());
-		if (entities.isEmpty()) {
-			log.log(Level.INFO, "Creating user {0}", user.getEmail());
+		String email = user.getEmail();
+		Entity entity = getEntityByEmail(email);
+		if (entity == null) {
+			log.log(Level.INFO, "Creating user {0}", email);
 			Entity userEntity = encodeEntity(user);
 			Key key = datastore.put(userEntity);
 			user.setKey(key.getId());
 		}
 		else {
-			log.log(Level.INFO, "Updating user {0}", user.getEmail());
-			Entity entity = entities.get(0);
+			log.log(Level.INFO, "Updating user {0}", email);
 			entity.setProperty(NameProp, user.getName());
-			entity.setProperty(EmailProp, user.getEmail());
+			entity.setProperty(EmailProp, email);
 			entity.setProperty(ActiveProp, true);
 			DatastoreUtil.setEnum(entity, LocationProp, user.getLocation());
 			datastore.put(entity);
 		}
 	}
 	
-	public void deactivateUser(Long userId) {
-		try {
-			Key key = KeyFactory.createKey(Kind, userId);
-			Entity e = datastore.get(key);
-			e.setProperty(ActiveProp, false);
-			datastore.put(e);
-		}
-		catch(EntityNotFoundException e) {
-			log.log(Level.WARNING, "Cannot deactivate user {0} because it doesn't exist", userId);
-		}
+	public void deactivateUser(Long userId) throws EntityNotFoundException {
+		Key key = KeyFactory.createKey(Kind, userId);
+		Entity e = datastore.get(key);
+		e.setProperty(ActiveProp, false);
+		datastore.put(e);
 	}
 	
 	public void linkUsers(Long userAId, Long userBId) throws EntityNotFoundException {
@@ -167,6 +161,12 @@ public class UserDAO {
 	
 	public void setDatastore(DatastoreService datastore) {
 		this.datastore = datastore;
+	}
+	
+	private Entity getEntityByEmail(String email) {
+		Query q = new Query(Kind).setFilter(new FilterPredicate(EmailProp, FilterOperator.EQUAL, email));
+		Entity entity = datastore.prepare(q).asSingleEntity();
+		return entity;
 	}
 	
 	private Entity encodeEntity(User user) {

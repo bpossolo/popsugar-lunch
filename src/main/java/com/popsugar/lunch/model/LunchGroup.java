@@ -19,16 +19,23 @@ public class LunchGroup implements Serializable {
 	private Long key;
 	private Long coordinatorKey;
 	private Location location;
-	private Date week;
+	private Date created;
 	private List<Long> userKeys;
 	private List<User> users;
 	private GroupType type;
+	private boolean active;
 	
 	public LunchGroup(){}
 	
 	public LunchGroup(Location location, GroupType type){
 		this.location = location;
 		this.type = type;
+		this.active = true;
+	}
+	
+	public LunchGroup(Location location, GroupType type, Date created){
+		this(location, type);
+		this.created = created;
 	}
 	
 	public Long getKey() {
@@ -132,11 +139,19 @@ public class LunchGroup implements Serializable {
 		this.type = type;
 	}
 	
-	public Date getWeek() {
-		return week;
+	public Date getCreated() {
+		return created;
 	}
 	
-	public void setWeek(Date week) {
-		this.week = week;
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+	
+	public boolean isActive() {
+		return active;
+	}
+	
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }

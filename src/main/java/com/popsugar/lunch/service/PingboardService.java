@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.CharEncoding;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +27,6 @@ public class PingboardService {
 	
 	private static final String BaseUrl = "https://app.pingboard.com";
 	private static final String BaseApiUrl = BaseUrl + "/api/v2";
-	private static final String UTF8 = "UTF-8";
 	private static final String pingboardAuthUsername = "bpossolo@popsugar.com";
 	private static final String pingboardAuthPassword = "lunchforfour";
 	private static final String PingboardUsersListMemcacheKey = "pingboard-users-list";
@@ -79,7 +79,7 @@ public class PingboardService {
 	public PingboardUser getUserByEmail(String email) {
 		try {
 			initAccessToken();
-			String encodedEmail = URLEncoder.encode(email, UTF8);
+			String encodedEmail = URLEncoder.encode(email, CharEncoding.UTF_8);
 			
 			String url = BaseApiUrl + "/users";
 			url = addAccessToken(url);
@@ -88,7 +88,7 @@ public class PingboardService {
 			HTTPResponse response = urlFetchService.fetch(new URL(url));
 			
 			byte[] content = response.getContent();
-			String jsonStr = new String(content, UTF8);
+			String jsonStr = new String(content, CharEncoding.UTF_8);
 			JSONObject json = new JSONObject(jsonStr);
 			JSONArray users = json.getJSONArray("users");
 			List<PingboardUser> pingboardUsers = decodeUsers(users);
@@ -128,11 +128,11 @@ public class PingboardService {
 			HTTPResponse response = urlFetchService.fetch(new URL(url));
 			
 			byte[] content = response.getContent();
-			String jsonStr = new String(content, UTF8);
+			String jsonStr = new String(content, CharEncoding.UTF_8);
 			JSONObject json = new JSONObject(jsonStr);
-			JSONArray users = json.getJSONArray("users");
-			List<PingboardUser> pingboardUsers = decodeUsers(users);
-			return pingboardUsers;
+			JSONArray jsonUsers = json.getJSONArray("users");
+			List<PingboardUser> users = decodeUsers(jsonUsers);
+			return users;
 		}
 		catch(IOException | JSONException e){
 			throw new RuntimeException("Failed to get pingboard users", e);
@@ -209,8 +209,8 @@ public class PingboardService {
 	void initAccessToken() {
 		try {
 			if (isAccessTokenExpired()) {
-				String encodedEmail = URLEncoder.encode(pingboardAuthUsername, UTF8);
-				String encodedPassword = URLEncoder.encode(pingboardAuthPassword, UTF8);
+				String encodedEmail = URLEncoder.encode(pingboardAuthUsername, CharEncoding.UTF_8);
+				String encodedPassword = URLEncoder.encode(pingboardAuthPassword, CharEncoding.UTF_8);
 				
 				String url = BaseUrl + "/oauth/token";
 				url = UrlUtil.addParam(url, "grant_type", "password");
@@ -222,7 +222,7 @@ public class PingboardService {
 				HTTPResponse response = urlFetchService.fetch(request);
 				
 				byte[] content = response.getContent();
-				String jsonStr = new String(content, UTF8);
+				String jsonStr = new String(content, CharEncoding.UTF_8);
 				JSONObject json = new JSONObject(jsonStr);
 				
 				accessToken = json.getString("access_token");

@@ -9,6 +9,9 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.popsugar.lunch.model.GroupType;
@@ -35,14 +38,15 @@ public class LunchGroupDAOTest {
 	}
 	
 	@Test
-	public void testDeleteLunchGroups(){
+	public void testDeactivateCurrentLunchGroups(){
 		
 		TestUtils.createLunchGroup(datastore, Location.SanFrancisco, GroupType.Regular);
 		TestUtils.createLunchGroup(datastore, Location.SanFrancisco, GroupType.Regular);
 		
-		dao.deleteLunchGroups(GroupType.Regular);
+		dao.deactivateCurrentLunchGroups(GroupType.Regular);
 		
-		Query q = new Query(LunchGroupDAO.Kind);
+		Filter filter = new FilterPredicate(LunchGroupDAO.ActiveProp, FilterOperator.EQUAL, true);
+		Query q = new Query(LunchGroupDAO.Kind).setFilter(filter);
 		int num = datastore.prepare(q).countEntities(FetchOptions.Builder.withDefaults());
 		Assert.assertEquals(0, num);
 	}

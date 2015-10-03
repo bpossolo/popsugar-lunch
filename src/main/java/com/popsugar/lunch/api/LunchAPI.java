@@ -100,10 +100,7 @@ public class LunchAPI {
 	@Path("/groups")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<LunchGroupDTO> getLunchGroups(@QueryParam("type") GroupType type) {
-		
-		String week = lunchManager.getCurrentWeek();
-		List<LunchGroup> groups = lunchManager.getLunchGroupsWithUsers(week, type);
-		
+		List<LunchGroup> groups = lunchManager.getLunchGroupsWithUsers(type);
 		ArrayList<LunchGroupDTO> result = new ArrayList<>(groups.size());
 		for (LunchGroup group : groups){
 			LunchGroupDTO dto = new LunchGroupDTO(group);
@@ -153,7 +150,7 @@ public class LunchAPI {
 	@GET
 	@Path("/unsubscribe/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response unsubscribeFromLunchForFour(@PathParam("userId") Long userId) {
+	public Response unsubscribeFromLunchForFour(@PathParam("userId") Long userId) throws EntityNotFoundException {
 		lunchManager.deactivateUser(userId);
 		return Response.ok("Unsubscribed").build();
 	}

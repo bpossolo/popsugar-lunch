@@ -17,6 +17,7 @@ public class TestUtils {
 		Entity e = new Entity(LunchGroupDAO.Kind);
 		e.setProperty(LunchGroupDAO.LocationProp, location.name());
 		e.setProperty(LunchGroupDAO.TypeProp, type.name());
+		e.setProperty(LunchGroupDAO.ActiveProp, true);
 		datastore.put(e);
 	}
 	

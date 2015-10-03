@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,9 @@ public class LunchManager {
 	//-------------------------------------------------------------------------------------------
 	
 	private static final Logger log = Logger.getLogger(LunchManager.class.getName());
+	
+	private static final String LunchGroupsRegularMemcacheKey = "lunch-groups-regular";
+	private static final String LunchGroupsPalsMemcacheKey = "lunch-groups-pals";
 	
 	//-------------------------------------------------------------------------------------------
 	//Member variables
@@ -66,7 +70,7 @@ public class LunchManager {
 	}
 	
 	public void generateLunchGroups(GroupType groupType, boolean email){
-		lunchGroupDao.deleteLunchGroups(groupType);
+		lunchGroupDao.deactivateCurrentLunchGroups(groupType);
 		for( Location location : Location.values() ){
 			List<User> users = userDao.getActiveUsersByLocationAndGroupType(location, groupType);
 			List<LunchGroup> groups;
@@ -77,21 +81,19 @@ public class LunchManager {
 				groups = buildRegularLunchGroups(users, location);
 			}
 			lunchGroupDao.persistLunchGroups(groups);
+			cacheLunchGroups(groups, groupType);
 			if (email) {
 				notifyUsersAboutNewLunchGroups(groups);
 			}
 		}
-		String week = getCurrentWeek();
-		memcache.delete(week);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public List<LunchGroup> getLunchGroupsWithUsers(String week, GroupType groupType){
-		List<LunchGroup> groups = (ArrayList<LunchGroup>)memcache.get(week);
+	public List<LunchGroup> getLunchGroupsWithUsers(GroupType groupType){
+		List<LunchGroup> groups = getCachedLunchGroups(groupType);
 		if( groups == null ){
-			groups = lunchGroupDao.getLunchGroups(groupType);
+			groups = lunchGroupDao.getActiveLunchGroupsByType(groupType);
 			
-			// populate the groups with the user objects
+			// populate the groups with the users
 			List<User> users = userDao.getActiveUsers();
 			Map<Long,User> userMap = User.mapByKey(users);
 			for( LunchGroup group : groups ){
@@ -100,20 +102,9 @@ public class LunchManager {
 					group.addUser(user);
 				}
 			}
-			
-			// cache the results
-			// Calendar oneWeekFromToday = Calendar.getInstance();
-			// oneWeekFromToday.add(Calendar.WEEK_OF_MONTH, 1);
-			// memcache.put(week, groups, Expiration.onDate(oneWeekFromToday.getTime()));
+			cacheLunchGroups(groups, groupType);
 		}
 		return groups;
-	}
-	
-	public String getCurrentWeek(){
-		Calendar startOfWeek = Calendar.getInstance();
-		startOfWeek.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-		SimpleDateFormat df = new SimpleDateFormat("MMMM dd, yyyy");
-		return df.format(startOfWeek.getTime());
 	}
 	
 	public Location estimateUserLocation(String city, String state){
@@ -133,7 +124,7 @@ public class LunchManager {
 		return null;
 	}
 	
-	public void deactivateUser(Long userId) {
+	public void deactivateUser(Long userId) throws EntityNotFoundException {
 		userDao.deactivateUser(userId);
 	}
 	
@@ -177,7 +168,8 @@ public class LunchManager {
 	
 	void notifyUsersAboutNewLunchGroups(List<LunchGroup> lunchGroups){
 		
-		String week = getCurrentWeek();
+		SimpleDateFormat df = new SimpleDateFormat("MMMM yyyy");
+		String date = df.format(Calendar.getInstance().getTime());
 		String sender = "PopSugar Lunch for Four <noreply@popsugar-lunch.appspotmail.com>";
 		String subject = "Lunch for Four";
 		
@@ -194,7 +186,8 @@ public class LunchManager {
 			for (User user: group.getUsers()) {
 				String unsubscribeUrl = UrlUtil.getUnsubscribeUrl(user);
 				
-				StringBuilder body = new StringBuilder(week)
+				StringBuilder body = new StringBuilder()
+					.append(date)
 					.append("\n\n")
 					.append("Your upcoming Lunch for Four consists of:")
 					.append("\n\n")
@@ -224,7 +217,10 @@ public class LunchManager {
 	List<LunchGroup> buildPalsLunchGroups(List<User> users, Location location) {
 		log.log(Level.INFO, "Building popsugar pals lunch groups for {0} people in {1}", 
 				new Object[]{ users.size(), location });
-		ArrayList<LunchGroup> groups = new ArrayList<>();
+		
+		Date now = new Date();
+		
+		List<LunchGroup> groups = new ArrayList<>();
 		if (users.isEmpty()) {
 			return groups;
 		}
@@ -236,7 +232,7 @@ public class LunchManager {
 			leftoverPair = pairs.remove(pairs.size() - 1);
 		}
 		
-		LunchGroup currentGroup = new LunchGroup(location, GroupType.PopsugarPals);
+		LunchGroup currentGroup = new LunchGroup(location, GroupType.PopsugarPals, now);
 		Iterator<Pair> i = pairs.iterator();
 		while (i.hasNext()) {
 			Pair pair = i.next();
@@ -245,7 +241,7 @@ public class LunchManager {
 			if (currentGroup.isFull()) {
 				groups.add(currentGroup);
 				if (i.hasNext()) {
-					currentGroup = new LunchGroup(location, GroupType.PopsugarPals);
+					currentGroup = new LunchGroup(location, GroupType.PopsugarPals, now);
 				}
 			}
 		}
@@ -265,13 +261,16 @@ public class LunchManager {
 	List<LunchGroup> buildRegularLunchGroups(List<User> users, Location location){
 		log.log(Level.INFO, "Building regular lunch groups for {0} people in {1}", 
 				new Object[]{ users.size(), location });
-		ArrayList<LunchGroup> groups = new ArrayList<>();
+		
+		Date now = new Date();
+		
+		List<LunchGroup> groups = new ArrayList<>();
 		if( users.isEmpty() ){
 			return groups;
 		}
 		Collections.shuffle(users);
 		
-		LunchGroup currentGroup = new LunchGroup(location, GroupType.Regular);
+		LunchGroup currentGroup = new LunchGroup(location, GroupType.Regular, now);
 		Iterator<User> i = users.iterator();
 		while( i.hasNext() ){
 			User user = i.next();
@@ -279,7 +278,7 @@ public class LunchManager {
 			if( currentGroup.isFull() ){
 				groups.add(currentGroup);
 				if( i.hasNext() ){
-					currentGroup = new LunchGroup(location, GroupType.Regular);
+					currentGroup = new LunchGroup(location, GroupType.Regular, now);
 				}
 			}
 		}
@@ -289,14 +288,14 @@ public class LunchManager {
 				groups.add(currentGroup);
 			}
 			else {
-				distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, currentGroup);
+				distributeUsersInUndersizedGroupToOtherGroups(GroupType.Regular, groups, currentGroup, now);
 			}
 		}
 		
 		return groups;
 	}
 	
-	void distributeUsersInUndersizedGroupToOtherGroups(GroupType groupType, List<LunchGroup> groups, LunchGroup undersizedGroup){
+	void distributeUsersInUndersizedGroupToOtherGroups(GroupType groupType, List<LunchGroup> groups, LunchGroup undersizedGroup, Date created){
 		
 		Location location = undersizedGroup.getLocation();
 		
@@ -310,8 +309,8 @@ public class LunchManager {
 		else if( undersizedGroup.size() == 2 ){
 			if( groups.size() == 1 ){
 				//create two groups of three
-				LunchGroup groupOne = new LunchGroup(location, groupType);
-				LunchGroup groupTwo = new LunchGroup(location, groupType);
+				LunchGroup groupOne = new LunchGroup(location, groupType, created);
+				LunchGroup groupTwo = new LunchGroup(location, groupType, created);
 				groupOne.addUserAndKey(groups.get(0).getUsers().get(0));
 				groupOne.addUserAndKey(groups.get(0).getUsers().get(1));
 				groupOne.addUserAndKey(groups.get(0).getUsers().get(2));
@@ -326,6 +325,31 @@ public class LunchManager {
 				groups.get(0).addUserAndKey(undersizedGroup.getUsers().get(0));
 				groups.get(1).addUserAndKey(undersizedGroup.getUsers().get(1));
 			}
+		}
+	}
+	
+	//-------------------------------------------------------------------------------------------
+	//Private methods
+	//-------------------------------------------------------------------------------------------
+	
+	private List<LunchGroup> getCachedLunchGroups(GroupType groupType) {
+		String cacheKey = getLunchGroupCacheKey(groupType);
+		@SuppressWarnings("unchecked")
+		List<LunchGroup> groups = (ArrayList<LunchGroup>)memcache.get(cacheKey);
+		return groups;
+	}
+	
+	private void cacheLunchGroups(List<LunchGroup> groups, GroupType groupType) {
+		String cacheKey = getLunchGroupCacheKey(groupType);
+		memcache.put(cacheKey, groups);
+	}
+	
+	private String getLunchGroupCacheKey(GroupType groupType) {
+		if (groupType == GroupType.Regular) {
+			return LunchGroupsRegularMemcacheKey;
+		}
+		else {
+			return LunchGroupsPalsMemcacheKey;
 		}
 	}
 	
