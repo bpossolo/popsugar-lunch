@@ -21,16 +21,21 @@ public class UrlUtil {
 		return url;
 	}
 	
-	public static String getBaseApiUrl() {
+	public static String getBaseUrl() {
 		if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Production) {
-			return "http://lunch.popsugar.com/api/lunch";
+			return "http://lunch.popsugar.com";
 		}
 		else {
-			return "http://localhost:8888/api/lunch";
+			return "http://localhost:8888";
 		}
 	}
 	
+	public static String getBaseApiUrl() {
+		String baseUrl = getBaseUrl();
+		return baseUrl + "/api/lunch";
+	}
+	
 	public static String getUnsubscribeUrl(User user) {
-		return getBaseApiUrl() + "/unsubscribe/" + user.getKey();
+		return getBaseUrl() + "/unsubscribe/" + user.getKey();
 	}
 }
