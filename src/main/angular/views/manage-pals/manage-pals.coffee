@@ -9,15 +9,14 @@ angular.module('app').controller('ManagePalsCtrl', ['$scope', '$injector', ($sco
   DefaultButtonLabel = 'Select 2 Users'
 
   promise = $http.get '/api/lunch/users'
-  promise.success (userDtos) ->
-    $scope.allUsers = User.enhance userDtos
+  promise.success (users) ->
+    $scope.allUsers = User.enhance users
 
   $scope.numSelected = 0
   $scope.toggleUserConnectionBtnLabel = DefaultButtonLabel
 
   suppressMessage = ->
     $scope.success = null
-    $scope.error = false
 
   getSelectedUsers = ->
     criteria =
@@ -26,10 +25,11 @@ angular.module('app').controller('ManagePalsCtrl', ['$scope', '$injector', ($sco
     selectedUsers
 
   linkUsers = (userA, userB) ->
-    data =
-      userAKey: userA.key
-      userBKey: userB.key
-    promise = $http.post '/api/lunch/buddies', data
+    config =
+      params:
+        userAKey: userA.key
+        userBKey: userB.key
+    promise = $http.post '/api/lunch/buddies', null, config
     promise.success ->
       userA.link userB
       userA.selected = false

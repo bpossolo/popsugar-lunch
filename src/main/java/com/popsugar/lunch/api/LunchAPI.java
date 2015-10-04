@@ -12,6 +12,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -23,7 +24,6 @@ import javax.ws.rs.core.Response;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.popsugar.lunch.WebAppInitializer;
-import com.popsugar.lunch.api.dto.BuddiesDTO;
 import com.popsugar.lunch.api.dto.CreateUserDTO;
 import com.popsugar.lunch.api.dto.LocationDTO;
 import com.popsugar.lunch.api.dto.LunchGroupDTO;
@@ -56,7 +56,7 @@ public class LunchAPI {
 	}
 	
 	@GET
-	@Path("/my-location")
+	@Path("/location")
 	@Produces(MediaType.APPLICATION_JSON)
 	public LocationDTO getMyLocation(@Context HttpServletRequest request){
 		String city = request.getHeader("X-AppEngine-City");
@@ -64,21 +64,6 @@ public class LunchAPI {
 		Location location = lunchService.estimateUserLocation(city, state);
 		LocationDTO dto = new LocationDTO(city, state, location);
 		return dto;
-	}
-
-	@GET
-	@Path("/generate-groups")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response generateLunchGroups(
-			@QueryParam("type") GroupType type,
-			@QueryParam("email") @DefaultValue("false") boolean email) {
-		if (type == null || type == GroupType.Regular) {
-			lunchService.generateLunchGroups(GroupType.Regular, email);
-		}
-		if (type == null || type == GroupType.PopsugarPals) {
-			lunchService.generateLunchGroups(GroupType.PopsugarPals, email);
-		}
-		return Response.ok("Lunch groups generated").build();
 	}
 	
 	@GET
@@ -94,13 +79,22 @@ public class LunchAPI {
 		return result;
 	}
 	
-	@POST
-	@Path("/create-user")
+	@PUT
+	@Path("/users")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response createUser(CreateUserDTO dto) {
-		lunchService.createUser(dto.name, dto.email, dto.location);
+	public Response createUserOrUpdate(CreateUserDTO dto) {
+		lunchService.createOrUpdateUser(dto.name, dto.email, dto.location);
 		return Response.ok("User created").build();
+	}
+	
+	@DELETE
+	@Path("/users/{userId}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response unsubscribeFromLunchForFour(
+		@PathParam("userId") Long userId) throws EntityNotFoundException {
+		userDao.deactivateUser(userId);
+		return Response.ok("Unsubscribed").build();
 	}
 	
 	@GET
@@ -116,12 +110,31 @@ public class LunchAPI {
 		return result;
 	}
 	
+	/**
+	 * This needs to be a GET so that it can be invoked by cron.
+	 */
+	@GET
+	@Path("/generate-groups")
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response generateLunchGroups(
+			@QueryParam("type") GroupType type,
+			@QueryParam("email") @DefaultValue("false") boolean email) {
+		if (type == null || type == GroupType.Regular) {
+			lunchService.generateLunchGroups(GroupType.Regular, email);
+		}
+		if (type == null || type == GroupType.PopsugarPals) {
+			lunchService.generateLunchGroups(GroupType.PopsugarPals, email);
+		}
+		return Response.ok("Lunch groups generated").build();
+	}
+	
 	@POST
 	@Path("/buddies")
-	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public Response linkUsers(BuddiesDTO dto) throws EntityNotFoundException {
-		userDao.linkUsers(dto.userAKey, dto.userBKey);
+	public Response linkUsers(
+		@QueryParam("userAKey") Long userAKey,
+		@QueryParam("userBKey") Long userBKey) throws EntityNotFoundException {
+		userDao.linkUsers(userAKey, userBKey);
 		return Response.ok("Users linked").build();
 	}
 	
@@ -136,7 +149,7 @@ public class LunchAPI {
 		return Response.ok("Users unlinked").build();
 	}
 	
-	@GET
+	@POST
 	@Path("/upgrade")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response upgrade(@Context ServletContext servletContext, @QueryParam("task") int taskNum) {
@@ -154,23 +167,15 @@ public class LunchAPI {
 		}
 	}
 	
-	@GET
-	@Path("/unsubscribe/{userId}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response unsubscribeFromLunchForFour(@PathParam("userId") Long userId) throws EntityNotFoundException {
-		userDao.deactivateUser(userId);
-		return Response.ok("Unsubscribed").build();
-	}
-	
-	@GET
-	@Path("/update-users-with-pingboard-data")
+	@PUT
+	@Path("/pingboard-data")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response updateUsersWithPingboardData() {
 		lunchService.updateUsersWithPingboardData();
 		return Response.ok("Users updated with pingboard data").build();
 	}
 	
-	@POST
+	@PUT
 	@Path("/oauth-refresh-token")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response setOAuthRefreshToken(

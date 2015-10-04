@@ -57,14 +57,14 @@ public class LunchService {
 		return users;
 	}
 	
-	public User createUser(String name, String email, Location location) {
+	public User createOrUpdateUser(String name, String email, Location location) {
 		PingboardUser pingboardUser = pingboard.getUserByEmail(email);
 		User user = new User(name, email, location, GroupType.Regular);
 		if (pingboardUser != null) {
 			user.setPingboardId(pingboardUser.getId());
 			user.setPingboardAvatarUrlSmall(pingboardUser.getAvatarUrlSmall());
 		}
-		userDao.createUser(user);
+		userDao.createOrUpdateUser(user);
 		return user;
 	}
 	

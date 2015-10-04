@@ -46,7 +46,7 @@ public class UserDAO {
 		this.datastore = datastore;
 	}
 	
-	public void createUser(User user){
+	public void createOrUpdateUser(User user){
 		String email = user.getEmail();
 		Entity entity = getEntityByEmail(email);
 		if (entity == null) {
