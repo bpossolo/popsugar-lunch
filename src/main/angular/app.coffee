@@ -20,6 +20,10 @@ angular.module('app', ['ui.router']).config(['$injector', ($injector) ->
     url: '/manage-pals'
     templateUrl: '/views/manage-pals/manage-pals.html'
     controller: 'ManagePalsCtrl'
+  .state 'unsubscribe',
+    url: '/unsubscribe/{userId}'
+    templateUrl: '/view/unsubscribe/unsubscribe.html'
+    controller: 'UnsubscribeCtrl'
 
   return
 ])
