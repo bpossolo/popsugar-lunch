@@ -2,20 +2,11 @@
   width: 80%;
   margin: 40px auto 0;
 
-  .week-and-legend {
+  .date {
+    font-size: 20px;
+    font-family: $font-family-base;
     text-align: center;
     margin-bottom: 30px;
-
-    .week {
-      font-size: 20px;
-      margin-bottom: 10px;
-      font-family: $font-family-serif;
-    }
-
-    .legend {
-      font-family: $font-family-base;
-      font-size: 20px;
-    }
   }
 
   .location {
@@ -24,7 +15,7 @@
     background-color: white;
   }
 
-  .location-name {
+  .city {
     margin: 20px 0 20px 50px;
     text-align: center;
     font-size: 28px;
