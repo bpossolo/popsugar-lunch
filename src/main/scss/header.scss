@@ -1,0 +1,37 @@
+header {
+  background-color: white;
+  margin: 0;
+  padding: 0;
+  height: 40px;
+  text-align: center;
+  opacity: 0.8;
+
+  .logo {
+    height: 40px;
+    position: absolute;
+    left: 20px;
+  }
+
+  .name {
+    line-height: 40px;
+    font-family: $font-family-accent;
+    font-size: 28px;
+    text-transform: uppercase;
+  }
+
+  .manage-pals {
+    position: absolute;
+    right: 30px;
+    line-height: 40px;
+  }
+
+  a {
+    text-decoration: none;
+    color: $btn-main-color;
+
+    &:visited {
+      color: $btn-main-color;
+    }
+  }
+
+}
