@@ -1,6 +1,6 @@
 {
   "name": "popsugar-lunch",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "devDependencies": {
     "browser-sync": "2.8.2",
     "coffee-script": "1.9.3",
