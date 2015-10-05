@@ -27,10 +27,10 @@
 
   .hamburger {
     width: 80px;
-    @include animation-name(spin);
-    @include animation-duration(2s);
-    @include animation-iteration-count(infinite);
-    @include animation-timing-function(linear);
+    animation-name: spin;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
   }
 
   .no-groups {
