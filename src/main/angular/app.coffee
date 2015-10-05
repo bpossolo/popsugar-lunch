@@ -41,5 +41,8 @@ angular.module('app', ['ui.router']).config(['$injector', ($injector) ->
   $rootScope.isLunchGroups = ->
     /^\/groups/.test $location.path()
 
+  $rootScope.showManagePalsLink = ->
+    $location.search().admin is 'true'
+
   return
 ])
