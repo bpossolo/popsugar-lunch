@@ -4,6 +4,8 @@ angular.module('app').controller('LunchGroupsCtrl', ['$scope', '$injector', ($sc
   $http = $injector.get '$http'
   User = $injector.get 'User'
 
+  $scope.loading = true
+
   $scope.sfLunchGroups = []
   $scope.laLunchGroups = []
   $scope.nyLunchGroups = []
@@ -27,6 +29,7 @@ angular.module('app').controller('LunchGroupsCtrl', ['$scope', '$injector', ($sc
         when 'NewYork'
           $scope.nyLunchGroups.push group
       group.users = User.enhance group.users
+    $scope.loading = false
 
   monthNames = [
     'January'

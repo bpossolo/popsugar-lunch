@@ -5,8 +5,12 @@
 
   <div class="date">{{date}}</div>
 
+  <div class="loading" ng-if="loading">
+    <img class="hamburger" src="/assets/images/hamburger.gif">
+  </div>
+
   <div class="no-groups"
-    ng-if="sfLunchGroups.length === 0 && laLunchGroups.length === 0 && nyLunchGroups.length === 0">
+    ng-if="!loading && sfLunchGroups.length === 0 && laLunchGroups.length === 0 && nyLunchGroups.length === 0">
     PopSugar Pals will start soon!
   </div>
 
