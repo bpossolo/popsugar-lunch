@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Header;
 import com.google.appengine.api.mail.MailService.Message;
@@ -89,7 +91,7 @@ public class LunchService {
 	
 	public List<LunchGroup> getLunchGroupsWithUsers(GroupType groupType){
 		List<LunchGroup> groups = getCachedLunchGroups(groupType);
-		if( groups == null ){
+		if (CollectionUtils.isEmpty(groups)) {
 			groups = lunchGroupDao.getActiveLunchGroupsByType(groupType);
 			
 			// populate the groups with the users
