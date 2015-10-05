@@ -5,19 +5,29 @@ angular.module('app').controller('LunchGroupsCtrl', ['$scope', '$injector', ($sc
   User = $injector.get 'User'
 
   $scope.loading = true
-
+  $scope.type = $stateParams.type
+  $scope.city = $stateParams.city or 'sanfrancisco'
   $scope.sfLunchGroups = []
   $scope.laLunchGroups = []
   $scope.nyLunchGroups = []
 
-  if $stateParams.type is 'popsugar-pals'
-    $scope.type = 'PopsugarPals'
+  switch $scope.city
+    when 'sanfrancisco'
+      $scope.groups = $scope.sfLunchGroups
+    when 'losangeles'
+      $scope.groups = $scope.laLunchGroups
+    when 'newyork'
+      $scope.groups = $scope.nyLunchGroups
+
+  if $scope.type is 'popsugar-pals'
+    groupType = 'PopsugarPals'
   else
-    $scope.type = 'Regular'
+    groupType = 'Regular'
 
   config =
+    cache: true
     params:
-      type: $scope.type
+      type: groupType
   promise = $http.get '/api/lunch/groups', config
   promise.success (groups) ->
     for group in groups
@@ -30,26 +40,6 @@ angular.module('app').controller('LunchGroupsCtrl', ['$scope', '$injector', ($sc
           $scope.nyLunchGroups.push group
       group.users = User.enhance group.users
     $scope.loading = false
-
-  monthNames = [
-    'January'
-    'February'
-    'March'
-    'April'
-    'May'
-    'June'
-    'July'
-    'August'
-    'September'
-    'October'
-    'November'
-    'December'
-  ]
-
-  now = new Date()
-  month = monthNames[now.getMonth()]
-  year = now.getFullYear()
-  $scope.date = "#{month} #{year}"
 
   return
 ])

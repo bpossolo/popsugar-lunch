@@ -1,45 +1,44 @@
 <div class="lunch-groups-view">
 
-  <h1 ng-if="type == 'Regular'">The Standard Lunch</h1>
-  <h1 ng-if="type == 'PopsugarPals'">PopSugar Pals</h1>
+  <h1 ng-if="type === 'regular'">The Standard Lunch</h1>
+  <h1 ng-if="type === 'popsugar-pals'">PopSugar Pals</h1>
 
-  <div class="date">{{date}}</div>
+  <div ng-include="'/widgets/date/date.html'"></div>
 
   <div class="loading" ng-if="loading">
     <img class="hamburger" src="/assets/images/hamburger.gif">
   </div>
 
-  <div class="no-groups"
-    ng-if="!loading && sfLunchGroups.length === 0 && laLunchGroups.length === 0 && nyLunchGroups.length === 0">
+  <div class="no-groups" ng-if="!loading && groups.length === 0">
     PopSugar Pals will start soon!
   </div>
 
-  <div class="location" ng-if="sfLunchGroups.length">
-    <h3 class="city">San Francisco</h3>
-    <div class="lunch-groups-container">
-      <div class="lunch-group-wrapper"
-        ng-repeat="group in sfLunchGroups"
-        ng-include="'/views/lunch-groups/lunch-group.html'">
-      </div>
-    </div>
-  </div>
+  <ul class="tabs">
+    <li class="city" ng-if="sfLunchGroups.length" ng-class="{ active: city === 'sanfrancisco' }">
+      <a ng-href="/groups/{{type}}/sanfrancisco">San Francisco</a>
+    </li>
+    <li class="city" ng-if="nyLunchGroups.length" ng-class="{ active: city === 'newyork' }">
+      <a ng-href="/groups/{{type}}/newyork">New York</a>
+    </li>
+    <li class="city" ng-if="laLunchGroups.length" ng-class="{ active: city === 'losangeles' }">
+      <a ng-href="/groups/{{type}}/losangeles">Los Angeles</a>
+    </li>
+  </ul>
 
-  <div class="location" ng-if="laLunchGroups.length">
-    <h3 class="city">Los Angeles</h3>
-    <div class="lunch-groups-container">
-      <div class="lunch-group-wrapper"
-        ng-repeat="group in laLunchGroups"
-        ng-include="'/views/lunch-groups/lunch-group.html'">
-      </div>
-    </div>
-  </div>
-
-  <div class="location" ng-if="nyLunchGroups.length">
-    <h3 class="city">New York</h3>
-    <div class="lunch-groups-container">
-      <div class="lunch-group-wrapper"
-        ng-repeat="group in nyLunchGroups"
-        ng-include="'/views/lunch-groups/lunch-group.html'">
+  <div class="lunch-groups">
+    <div class="lunch-group" ng-repeat="group in groups">
+      <div class="user" ng-repeat="user in group.users">
+        <a class="pingboard-link" ng-href="{{ user.pingboardUrl }}" target="_blank">
+          <div class="avatar"
+            ng-style="{ 'background-image': 'url(' + user.avatarUrl + ')'}">
+          </div>
+          <div class="name">
+            {{user.name}}
+          </div>
+          <div class="coordinator" ng-if="user.coordinator">
+            Coordinator
+          </div>
+        </a>
       </div>
     </div>
   </div>

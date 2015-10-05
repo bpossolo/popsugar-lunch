@@ -15,7 +15,7 @@
     text-transform: uppercase;
   }
 
-  .date {
+  .date-widget {
     font-size: 18px;
     font-family: $font-family-base;
     margin: 10px 0 30px;
@@ -39,22 +39,38 @@
     font-family: $font-family-base;
   }
 
-  .location {
-    margin-bottom: 20px;
+  .tabs {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
   }
 
   .city {
-    font-size: 28px;
-    font-family: $font-family-base;
-    color: $btn-main-color;
+    display: inline-block;
+    margin: 20px;
+
+    &.active {
+      border-bottom: 3px solid $accent-color;
+    }
+
+    a {
+      font-size: 28px;
+      font-family: $font-family-base;
+      font-weight: bold;
+      color: $btn-main-color;
+      text-decoration: none;
+    }
   }
 
-  .lunch-groups-container {
+  .lunch-groups {
     margin: 20px 50px;
   }
 
-  .lunch-group-wrapper {
+  .lunch-group {
     border-bottom: 1px solid black;
+    margin: 20px 0;
+    padding: 20px;
+    text-align: center;
 
     &:first-child {
       border-top: 1px solid black;
@@ -64,4 +80,28 @@
       border-bottom: 0;
     }
   }
+
+  .user {
+    display: inline-block;
+    min-width: 200px;
+    vertical-align: top;
+
+    .pingboard-link {
+      text-decoration: none;
+    }
+
+    .name {
+      font-family: $font-family-base;
+      font-size: 18px;
+      margin-top: 10px;
+      color: black;
+    }
+
+    .coordinator {
+      font-family: $font-family-base;
+      font-size: 14px;
+      color: $light-grey;
+    }
+  }
+
 }

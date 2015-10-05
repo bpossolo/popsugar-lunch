@@ -16,6 +16,10 @@ angular.module('app', ['ui.router']).config(['$injector', ($injector) ->
     url: '/groups/{type}'
     templateUrl: '/views/lunch-groups/lunch-groups.html'
     controller: 'LunchGroupsCtrl'
+  .state 'lunch-groups-city',
+    url: '/groups/{type}/{city}'
+    templateUrl: '/views/lunch-groups/lunch-groups.html'
+    controller: 'LunchGroupsCtrl'
   .state 'manage-pals',
     url: '/manage-pals'
     templateUrl: '/views/manage-pals/manage-pals.html'
