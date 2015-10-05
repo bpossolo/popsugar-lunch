@@ -17,7 +17,6 @@ import com.google.appengine.tools.development.testing.LocalURLFetchServiceTestCo
 import com.popsugar.lunch.dao.RefreshTokenDAO;
 import com.popsugar.lunch.model.PingboardUser;
 import com.popsugar.lunch.oauth.AccessToken;
-import com.popsugar.lunch.oauth.OAuthApp;
 
 public class PingboardServiceTest {
 	
@@ -31,11 +30,7 @@ public class PingboardServiceTest {
 	public void setUp() throws Exception {
 		helper.setUp();
 		URLFetchService urlFetchService = URLFetchServiceFactory.getURLFetchService();
-		
-		String refreshToken = "4f0411394fa9d2a6af0c90903c390eecbb43d1ca983f17caee6a415cb8ff0e90";
 		refreshTokenDao = Mockito.mock(RefreshTokenDAO.class);
-		Mockito.when(refreshTokenDao.getRefreshToken(OAuthApp.Pingboard)).thenReturn(refreshToken);
-		
 		pingboardService = new PingboardService(urlFetchService, refreshTokenDao);
 	}
 	
@@ -45,8 +40,8 @@ public class PingboardServiceTest {
 	}
 	
 	@Test
-	public void testInitAccessToken() {
-		pingboardService.initAccessToken();
+	public void testInitAccessTokenFromCredentials() {
+		pingboardService.initAccessTokenFromCredentials();
 		AccessToken accessToken = pingboardService.getAccessToken();
 		Assert.assertNotNull(accessToken);
 		Assert.assertNotNull(accessToken.getValue());

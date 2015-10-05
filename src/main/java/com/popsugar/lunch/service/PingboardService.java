@@ -39,7 +39,7 @@ public class PingboardService {
 
 	public PingboardUser getUserByEmail(String email) {
 		try {
-			initAccessToken();
+			initAccessTokenFromCredentials();
 			String encodedEmail = URLEncoder.encode(email, CharEncoding.UTF_8);
 			
 			String url = BaseApiUrl + "/users";
@@ -80,7 +80,7 @@ public class PingboardService {
 	
 	public List<PingboardUser> getPageOfUsers(int pageNum) {
 		try{
-			initAccessToken();
+			initAccessTokenFromCredentials();
 			
 			String url = BaseApiUrl + "/users";
 			url = UrlUtil.addAccessToken(url, accessToken);
@@ -100,7 +100,7 @@ public class PingboardService {
 		}
 	}
 	
-	void initAccessToken() {
+	void initAccessTokenFromRefreshToken() {
 		try {
 			if (accessToken == null || accessToken.isExpired()) {
 				
@@ -132,6 +132,33 @@ public class PingboardService {
 		}
 		catch(EntityNotFoundException e) {
 			throw new RuntimeException("Refresh token for pingboard app does not exist", e);
+		}
+		catch(IOException e){
+			throw new RuntimeException("Failed to get access token", e);
+		}
+	}
+	
+	void initAccessTokenFromCredentials() {
+		try {
+			if (accessToken == null || accessToken.isExpired()) {
+				
+				String url = BaseUrl + "/oauth/token";
+				url = UrlUtil.addParam(url, "grant_type", "password");
+				url = UrlUtil.addParam(url, "username", "bpossolo@popsugar.com");
+				url = UrlUtil.addParam(url, "password", "lunchforfour");
+				
+				HTTPRequest request = new HTTPRequest(new URL(url), HTTPMethod.POST);
+				request.getFetchOptions().setDeadline(10.0);
+				HTTPResponse response = urlFetchService.fetch(request);
+				
+				byte[] content = response.getContent();
+				String jsonStr = new String(content, CharEncoding.UTF_8);
+				JSONObject json = new JSONObject(jsonStr);
+				
+				String accessTokenValue = json.getString("access_token");
+				int expiration = json.getInt("expires_in");
+				accessToken = new AccessToken(accessTokenValue, expiration);
+			}
 		}
 		catch(IOException e){
 			throw new RuntimeException("Failed to get access token", e);
