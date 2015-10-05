@@ -163,6 +163,18 @@
 					</jvmFlags>
 					<disableUpdateCheck>true</disableUpdateCheck>
 				</configuration>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<!--
+							Convert the Maven version with dots into a Google App Engine
+							friendly version with dashes to be included in appengine-web.xml 
+							-->
+							<goal>create-property</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
@@ -204,6 +216,35 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.google.appengine</groupId>
+										<artifactId>appengine-maven-plugin</artifactId>
+										<versionRange>${gaeVersion}</versionRange>
+										<goals>
+											<goal>create-property</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute/>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 </project>
