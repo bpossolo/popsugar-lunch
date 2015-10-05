@@ -110,24 +110,6 @@ public class LunchAPI {
 		return result;
 	}
 	
-	/**
-	 * This needs to be a GET so that it can be invoked by cron.
-	 */
-	@GET
-	@Path("/generate-groups")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response generateLunchGroups(
-			@QueryParam("type") GroupType type,
-			@QueryParam("email") @DefaultValue("false") boolean email) {
-		if (type == null || type == GroupType.Regular) {
-			lunchService.generateLunchGroups(GroupType.Regular, email);
-		}
-		if (type == null || type == GroupType.PopsugarPals) {
-			lunchService.generateLunchGroups(GroupType.PopsugarPals, email);
-		}
-		return Response.ok("Lunch groups generated").build();
-	}
-	
 	@POST
 	@Path("/buddies")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -149,7 +131,22 @@ public class LunchAPI {
 		return Response.ok("Users unlinked").build();
 	}
 	
-	@POST
+	@GET
+	@Path("/generate-groups")
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response generateLunchGroups(
+			@QueryParam("type") GroupType type,
+			@QueryParam("email") @DefaultValue("false") boolean email) {
+		if (type == null || type == GroupType.Regular) {
+			lunchService.generateLunchGroups(GroupType.Regular, email);
+		}
+		if (type == null || type == GroupType.PopsugarPals) {
+			lunchService.generateLunchGroups(GroupType.PopsugarPals, email);
+		}
+		return Response.ok("Lunch groups generated").build();
+	}
+	
+	@GET
 	@Path("/upgrade")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response upgrade(@Context ServletContext servletContext, @QueryParam("task") int taskNum) {
@@ -167,16 +164,16 @@ public class LunchAPI {
 		}
 	}
 	
-	@PUT
-	@Path("/pingboard-data")
+	@GET
+	@Path("/update-pingboard-data")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response updateUsersWithPingboardData() {
 		lunchService.updateUsersWithPingboardData();
 		return Response.ok("Users updated with pingboard data").build();
 	}
 	
-	@PUT
-	@Path("/oauth-refresh-token")
+	@GET
+	@Path("/put-oauth-refresh-token")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response setOAuthRefreshToken(
 			@QueryParam("app") OAuthApp app,
