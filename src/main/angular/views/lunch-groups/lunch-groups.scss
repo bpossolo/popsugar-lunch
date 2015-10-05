@@ -1,34 +1,52 @@
 .lunch-groups-view {
   width: 80%;
-  margin: 40px auto 0;
+  margin: 40px auto 50px;
+  border: 1px solid $btn-main-color;
+  background-color: white;
+  min-height: 400px;
+  text-align: center;
+
+  h1 {
+    margin-top: 20px;
+    font-size: 28px;
+    font-family: $font-family-serif;
+    font-style: italic;
+    font-weight: normal;
+    text-transform: uppercase;
+  }
 
   .date {
-    font-size: 20px;
+    font-size: 18px;
     font-family: $font-family-base;
-    text-align: center;
-    margin-bottom: 30px;
+    margin: 10px 0 30px;
+  }
+
+  .no-groups {
+    margin-top: 100px;
+    font-size: 40px;
+    font-family: $font-family-base;
   }
 
   .location {
-    border: 1px solid $btn-main-color;
     margin-bottom: 20px;
-    background-color: white;
   }
 
   .city {
-    margin: 20px 0 20px 50px;
-    text-align: center;
     font-size: 28px;
     font-family: $font-family-base;
     color: $btn-main-color;
   }
 
   .lunch-groups-container {
-    margin: 10px 50px 20px;
+    margin: 20px 50px;
   }
 
   .lunch-group-wrapper {
     border-bottom: 1px solid black;
+
+    &:first-child {
+      border-top: 1px solid black;
+    }
 
     &:last-child {
       border-bottom: 0;

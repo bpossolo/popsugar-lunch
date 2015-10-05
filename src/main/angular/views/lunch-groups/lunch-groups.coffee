@@ -8,14 +8,14 @@ angular.module('app').controller('LunchGroupsCtrl', ['$scope', '$injector', ($sc
   $scope.laLunchGroups = []
   $scope.nyLunchGroups = []
 
-  config =
-    params: {}
-
   if $stateParams.type is 'popsugar-pals'
-    config.params.type = 'PopsugarPals'
+    $scope.type = 'PopsugarPals'
   else
-    config.params.type = 'Regular'
+    $scope.type = 'Regular'
 
+  config =
+    params:
+      type: $scope.type
   promise = $http.get '/api/lunch/groups', config
   promise.success (groups) ->
     for group in groups

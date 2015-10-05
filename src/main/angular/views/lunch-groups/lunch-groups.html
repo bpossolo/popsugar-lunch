@@ -1,8 +1,14 @@
 <div class="lunch-groups-view">
-  <h1 ng-if="type == 'regular'">Lunch for Four Groups</h1>
-  <h1 ng-if="type == 'popsugar-pals'">Lunch for PopSugar Pals</h1>
+
+  <h1 ng-if="type == 'Regular'">The Standard Lunch</h1>
+  <h1 ng-if="type == 'PopsugarPals'">PopSugar Pals</h1>
 
   <div class="date">{{date}}</div>
+
+  <div class="no-groups"
+    ng-if="sfLunchGroups.length === 0 && laLunchGroups.length === 0 && nyLunchGroups.length === 0">
+    PopSugar Pals will start soon!
+  </div>
 
   <div class="location" ng-if="sfLunchGroups.length">
     <h3 class="city">San Francisco</h3>
