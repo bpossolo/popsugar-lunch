@@ -159,39 +159,40 @@ public class LunchService {
 		
 		SimpleDateFormat df = new SimpleDateFormat("MMMM yyyy");
 		String date = df.format(Calendar.getInstance().getTime());
+		String siteUrl = UrlUtil.getBaseUrl();
 		String sender = "PopSugar Lunch for Four <noreply@popsugar-lunch.appspotmail.com>";
 		String subject = "Lunch for Four";
 		
 		for (LunchGroup group : lunchGroups) {
 			
-			StringBuilder memberList = new StringBuilder();
-			for (User user: group.getUsers()) {
-				memberList.append(" - ").append(user.getName());
-				if( group.isCoordinatedBy(user) )
-					memberList.append(" (please coordinate the exact location/date)");
-				memberList.append('\n');
+			List<User> users = group.getUsers();
+			
+			StringBuilder template = new StringBuilder()
+				.append(date)
+				.append("\n\n")
+				.append("Your upcoming Lunch for Four consists of:")
+				.append("\n\n");
+			
+			for (User user : users) {
+				template.append(" - ").append(user.getName());
+				if( group.isCoordinatedBy(user) ){
+					template.append(" (please coordinate the exact location/date)");
+				}
+				template.append('\n');
 			}
 			
-			for (User user: group.getUsers()) {
-				String unsubscribeUrl = UrlUtil.getUnsubscribeUrl(user);
-				
-				StringBuilder body = new StringBuilder()
-					.append(date)
-					.append("\n\n")
-					.append("Your upcoming Lunch for Four consists of:")
-					.append("\n\n")
-					.append(memberList)
-					.append('\n')
-					.append("If you know anyone that would like to join Lunch for Four, feel free to invite them via http://lunch.popsugar.com")
-					.append("\n\n")
-					.append("If you would like to be removed from Lunch for Four, click here ")
-					.append(unsubscribeUrl);
-				
+			template.append('\n')
+				.append("If you know anyone that would like to join Lunch for Four, feel free to invite them via ")
+				.append(siteUrl)
+				.append("\n\n")
+				.append("To unsubscribe, go to ");
+			
+			for (User user : users) {
 				String to = user.getEmail();
-				Set<String> cc = getOtherEmails(group, user);
+				String unsubscribeUrl = UrlUtil.getUnsubscribeUrl(user);
+				StringBuilder body = new StringBuilder(template).append(unsubscribeUrl);
 				Header listUnsubscribe = new Header("List-Unsubscribe", "<" + unsubscribeUrl + ">");
 				Message msg = new Message(sender, to, subject, body.toString());
-				msg.setCc(cc);
 				msg.setHeaders(listUnsubscribe);
 				try{
 					mailService.send(msg);
