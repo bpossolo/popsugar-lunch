@@ -109,7 +109,7 @@ public class LunchService {
 						}
 						catch(EntityNotFoundException e){
 							log.log(Level.WARNING, "Group {0} contains user key {1} which doesn't map to user", 
-								new Object[] {group.getKey(), userKey});
+								new Object[] {group.getKey().toString(), userKey.toString()});
 						}
 					}
 					if (user != null) {
