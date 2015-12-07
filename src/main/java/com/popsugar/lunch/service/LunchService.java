@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Header;
 import com.google.appengine.api.mail.MailService.Message;
@@ -82,7 +83,7 @@ public class LunchService {
 				groups = buildRegularLunchGroups(users, location);
 			}
 			lunchGroupDao.persistLunchGroups(groups);
-			cacheLunchGroups(groups, groupType);
+			//cacheLunchGroups(groups, groupType);
 			if (email) {
 				notifyUsersAboutNewLunchGroups(groups);
 			}
@@ -100,10 +101,23 @@ public class LunchService {
 			for( LunchGroup group : groups ){
 				for( Long userKey : group.getUserKeys() ){
 					User user = userMap.get(userKey);
-					group.addUser(user);
+					if (user == null) {
+						// the user might have been marked inactive after the group
+						// was created so try to lookup the user by key
+						try {
+							user = userDao.getUserByKey(userKey);
+						}
+						catch(EntityNotFoundException e){
+							log.log(Level.WARNING, "Group {0} contains user key {1} which doesn't map to user", 
+								new Object[] {group.getKey(), userKey});
+						}
+					}
+					if (user != null) {
+						group.addUser(user);
+					}
 				}
 			}
-			cacheLunchGroups(groups, groupType);
+			//cacheLunchGroups(groups, groupType);
 		}
 		return groups;
 	}
@@ -329,6 +343,7 @@ public class LunchService {
 		return groups;
 	}
 	
+	@SuppressWarnings("unused")
 	private void cacheLunchGroups(List<LunchGroup> groups, GroupType groupType) {
 		String cacheKey = getLunchGroupCacheKey(groupType);
 		memcache.put(cacheKey, groups);
