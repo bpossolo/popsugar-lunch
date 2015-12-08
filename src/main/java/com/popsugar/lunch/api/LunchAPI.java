@@ -27,6 +27,7 @@ import com.popsugar.lunch.WebAppInitializer;
 import com.popsugar.lunch.api.dto.CreateUserDTO;
 import com.popsugar.lunch.api.dto.LocationDTO;
 import com.popsugar.lunch.api.dto.LunchGroupDTO;
+import com.popsugar.lunch.api.dto.UpdateLunchGroupDTO;
 import com.popsugar.lunch.api.dto.UserDTO;
 import com.popsugar.lunch.dao.RefreshTokenDAO;
 import com.popsugar.lunch.dao.UserDAO;
@@ -108,6 +109,17 @@ public class LunchAPI {
 			result.add(dto);
 		}
 		return result;
+	}
+	
+	@PUT
+	@Path("/groups")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public Response update(UpdateLunchGroupDTO dto) throws EntityNotFoundException {
+		LunchGroup group = lunchService.getLunchGroupById(dto.getKey());
+		group.setUserKeys(dto.getUserKeys());
+		lunchService.updateLunchGroup(group);
+		return Response.ok("Lunch group updated").build();
 	}
 	
 	@POST

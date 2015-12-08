@@ -90,6 +90,15 @@ public class LunchService {
 		}
 	}
 	
+	public LunchGroup getLunchGroupById(Long id) throws EntityNotFoundException {
+		return lunchGroupDao.getById(id);
+	}
+	
+	public void updateLunchGroup(LunchGroup group) {
+		List<LunchGroup> list = Collections.singletonList(group);
+		lunchGroupDao.persistLunchGroups(list);
+	}
+	
 	public List<LunchGroup> getLunchGroupsWithUsers(GroupType groupType){
 		List<LunchGroup> groups = getCachedLunchGroups(groupType);
 		if (CollectionUtils.isEmpty(groups)) {

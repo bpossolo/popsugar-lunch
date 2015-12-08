@@ -9,7 +9,10 @@ import java.util.logging.Logger;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.FilterOperator;
@@ -57,6 +60,13 @@ public class LunchGroupDAO {
 		datastore.put(entities);
 	}
 	
+	public LunchGroup getById(Long id) throws EntityNotFoundException {
+		Key key = KeyFactory.createKey(Kind, id);
+		Entity e = datastore.get(key);
+		LunchGroup group = decodeEntity(e);
+		return group;
+	}
+	
 	private List<Entity> getActiveLunchGroupEntitiesByType(GroupType type) {
 		Query q = new Query(Kind).setFilter(
 			CompositeFilterOperator.and(
@@ -69,7 +79,13 @@ public class LunchGroupDAO {
 	}
 	
 	private Entity encodeEntity(LunchGroup group) {
-		Entity e = new Entity(Kind);
+		Entity e;
+		if (group.getKey() == null) {
+			e = new Entity(Kind);
+		}
+		else {
+			e = new Entity(Kind, group.getKey());
+		}
 		e.setProperty(CoordinatorKeyProp, group.getCoordinatorKey());
 		e.setProperty(UserKeysProp, group.getUserKeys());
 		e.setProperty(ActiveProp, group.isActive());
