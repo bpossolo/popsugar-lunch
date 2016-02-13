@@ -16,8 +16,6 @@ import org.mockito.Mockito;
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Message;
 import com.google.appengine.api.mail.MailServiceFactory;
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.tools.development.testing.LocalMailServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -38,7 +36,6 @@ public class LunchServiceTest {
 	private LunchService lunchService;
 	private UserDAO userDao;
 	private LunchGroupDAO lunchGroupDao;
-	private MemcacheService memcache;
 	private MailService mailService;
 	private MailService mockMailService;
 	private PingboardService pingboard;
@@ -46,7 +43,6 @@ public class LunchServiceTest {
 	@Before
 	public void setUp() throws Exception {
 		helper.setUp();
-		memcache = MemcacheServiceFactory.getMemcacheService();
 		mailService = MailServiceFactory.getMailService();
 		mockMailService = Mockito.mock(MailService.class);
 		userDao = Mockito.mock(UserDAO.class);
@@ -54,7 +50,6 @@ public class LunchServiceTest {
 		pingboard = Mockito.mock(PingboardService.class);
 		
 		lunchService = new LunchService();
-		lunchService.setMemcache(memcache);
 		lunchService.setMailService(mailService);
 		lunchService.setUserDao(userDao);
 		lunchService.setLunchGroupDao(lunchGroupDao);

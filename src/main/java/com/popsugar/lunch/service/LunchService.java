@@ -13,13 +13,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.collections4.CollectionUtils;
-
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Header;
 import com.google.appengine.api.mail.MailService.Message;
-import com.google.appengine.api.memcache.MemcacheService;
 import com.popsugar.lunch.dao.LunchGroupDAO;
 import com.popsugar.lunch.dao.UserDAO;
 import com.popsugar.lunch.model.GroupType;
@@ -38,9 +35,6 @@ public class LunchService {
 	
 	private static final Logger log = Logger.getLogger(LunchService.class.getName());
 	
-	private static final String LunchGroupsRegularMemcacheKey = "lunch-groups-regular";
-	private static final String LunchGroupsPalsMemcacheKey = "lunch-groups-pals";
-	
 	//-------------------------------------------------------------------------------------------
 	//Member variables
 	//-------------------------------------------------------------------------------------------
@@ -48,7 +42,6 @@ public class LunchService {
 	private LunchGroupDAO lunchGroupDao;
 	private UserDAO userDao;
 	private PingboardService pingboard;
-	private MemcacheService memcache;
 	private MailService mailService;
 	
 	//-------------------------------------------------------------------------------------------
@@ -82,10 +75,16 @@ public class LunchService {
 			else {
 				groups = buildRegularLunchGroups(users, location);
 			}
-			lunchGroupDao.persistLunchGroups(groups);
-			//cacheLunchGroups(groups, groupType);
-			if (email) {
-				notifyUsersAboutNewLunchGroups(groups);
+			if (groups.size() > 1) {
+				lunchGroupDao.persistLunchGroups(groups);
+				//cacheLunchGroups(groups, groupType);
+				if (email) {
+					notifyUsersAboutNewLunchGroups(groups);
+				}
+			}
+			else {
+				log.log(Level.INFO, "{} only has enough people for one {} lunch group so it will be skipped", 
+					new Object[]{location, groupType});
 			}
 		}
 	}
@@ -100,33 +99,28 @@ public class LunchService {
 	}
 	
 	public List<LunchGroup> getLunchGroupsWithUsers(GroupType groupType){
-		List<LunchGroup> groups = getCachedLunchGroups(groupType);
-		if (CollectionUtils.isEmpty(groups)) {
-			groups = lunchGroupDao.getActiveLunchGroupsByType(groupType);
-			
-			// populate the groups with the users
-			List<User> users = userDao.getActiveUsers();
-			Map<Long,User> userMap = User.mapByKey(users);
-			for( LunchGroup group : groups ){
-				for( Long userKey : group.getUserKeys() ){
-					User user = userMap.get(userKey);
-					if (user == null) {
-						// the user might have been marked inactive after the group
-						// was created so try to lookup the user by key
-						try {
-							user = userDao.getUserByKey(userKey);
-						}
-						catch(EntityNotFoundException e){
-							log.log(Level.WARNING, "Group {0} contains user key {1} which doesn't map to user", 
-								new Object[] {group.getKey().toString(), userKey.toString()});
-						}
+		List<LunchGroup> groups = lunchGroupDao.getActiveLunchGroupsByType(groupType);
+		// populate the groups with the users
+		List<User> users = userDao.getActiveUsers();
+		Map<Long,User> userMap = User.mapByKey(users);
+		for( LunchGroup group : groups ){
+			for( Long userKey : group.getUserKeys() ){
+				User user = userMap.get(userKey);
+				if (user == null) {
+					// the user might have been marked inactive after the group
+					// was created so try to lookup the user by key
+					try {
+						user = userDao.getUserByKey(userKey);
 					}
-					if (user != null) {
-						group.addUser(user);
+					catch(EntityNotFoundException e){
+						log.log(Level.WARNING, "Group {0} contains user key {1} which doesn't map to user", 
+							new Object[] {group.getKey().toString(), userKey.toString()});
 					}
 				}
+				if (user != null) {
+					group.addUser(user);
+				}
 			}
-			//cacheLunchGroups(groups, groupType);
 		}
 		return groups;
 	}
@@ -342,32 +336,6 @@ public class LunchService {
 	}
 	
 	//-------------------------------------------------------------------------------------------
-	//Private methods
-	//-------------------------------------------------------------------------------------------
-	
-	private List<LunchGroup> getCachedLunchGroups(GroupType groupType) {
-		String cacheKey = getLunchGroupCacheKey(groupType);
-		@SuppressWarnings("unchecked")
-		List<LunchGroup> groups = (ArrayList<LunchGroup>)memcache.get(cacheKey);
-		return groups;
-	}
-	
-	@SuppressWarnings("unused")
-	private void cacheLunchGroups(List<LunchGroup> groups, GroupType groupType) {
-		String cacheKey = getLunchGroupCacheKey(groupType);
-		memcache.put(cacheKey, groups);
-	}
-	
-	private String getLunchGroupCacheKey(GroupType groupType) {
-		if (groupType == GroupType.Regular) {
-			return LunchGroupsRegularMemcacheKey;
-		}
-		else {
-			return LunchGroupsPalsMemcacheKey;
-		}
-	}
-	
-	//-------------------------------------------------------------------------------------------
 	//Getters/setters
 	//-------------------------------------------------------------------------------------------
 	
@@ -377,10 +345,6 @@ public class LunchService {
 	
 	public void setUserDao(UserDAO userDao) {
 		this.userDao = userDao;
-	}
-	
-	public void setMemcache(MemcacheService memcache) {
-		this.memcache = memcache;
 	}
 	
 	public void setPingboard(PingboardService pingboard) {

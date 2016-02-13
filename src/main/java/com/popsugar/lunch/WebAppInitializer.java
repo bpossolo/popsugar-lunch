@@ -8,8 +8,6 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailServiceFactory;
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.popsugar.lunch.dao.LunchGroupDAO;
@@ -28,7 +26,6 @@ public class WebAppInitializer implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		
-		MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		URLFetchService urlFetchService = URLFetchServiceFactory.getURLFetchService();
 		MailService mailService = MailServiceFactory.getMailService();
@@ -39,18 +36,17 @@ public class WebAppInitializer implements ServletContextListener {
 		
 		PingboardService pingboard = new PingboardService(urlFetchService, refreshTokenDao);
 		
-		LunchService lunchManager = new LunchService();
-		lunchManager.setMemcache(memcache);
-		lunchManager.setMailService(mailService);
-		lunchManager.setUserDao(userDao);
-		lunchManager.setLunchGroupDao(lunchGroupDao);
-		lunchManager.setPingboard(pingboard);
+		LunchService lunchService = new LunchService();
+		lunchService.setMailService(mailService);
+		lunchService.setUserDao(userDao);
+		lunchService.setLunchGroupDao(lunchGroupDao);
+		lunchService.setPingboard(pingboard);
 		
 		ServletContext context = contextEvent.getServletContext();
 		context.setAttribute(Datastore, datastore);
 		context.setAttribute(UserDAO, userDao);
 		context.setAttribute(RefreshTokenDAO, refreshTokenDao);
-		context.setAttribute(LunchService, lunchManager);
+		context.setAttribute(LunchService, lunchService);
 	}
 
 	@Override
