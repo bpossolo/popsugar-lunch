@@ -64,9 +64,9 @@ public class LunchService {
 		return user;
 	}
 	
-	public void generateLunchGroups(GroupType groupType, boolean email){
+	public void generateLunchGroups(GroupType groupType, Location[] locations, boolean email){
 		lunchGroupDao.deactivateCurrentLunchGroups(groupType);
-		for( Location location : Location.values() ){
+		for( Location location : locations ){
 			List<User> users = userDao.getActiveUsersByLocationAndGroupType(location, groupType);
 			List<LunchGroup> groups;
 			if (groupType == GroupType.PopsugarPals) {
@@ -77,7 +77,6 @@ public class LunchService {
 			}
 			if (groups.size() > 1) {
 				lunchGroupDao.persistLunchGroups(groups);
-				//cacheLunchGroups(groups, groupType);
 				if (email) {
 					notifyUsersAboutNewLunchGroups(groups);
 				}

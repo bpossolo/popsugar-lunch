@@ -148,12 +148,16 @@ public class LunchAPI {
 	@Produces(MediaType.TEXT_PLAIN)
 	public Response generateLunchGroups(
 			@QueryParam("type") GroupType type,
+			@QueryParam("location") Location location,
 			@QueryParam("email") @DefaultValue("false") boolean email) {
+		
+		Location[] locations = (location == null) ? Location.values() : new Location[]{location};
+		
 		if (type == null || type == GroupType.Regular) {
-			lunchService.generateLunchGroups(GroupType.Regular, email);
+			lunchService.generateLunchGroups(GroupType.Regular, locations, email);
 		}
 		if (type == null || type == GroupType.PopsugarPals) {
-			lunchService.generateLunchGroups(GroupType.PopsugarPals, email);
+			lunchService.generateLunchGroups(GroupType.PopsugarPals, locations, email);
 		}
 		return Response.ok("Lunch groups generated").build();
 	}

@@ -267,31 +267,40 @@ public class LunchServiceTest {
 		
 		lunchService.setMailService(mockMailService);
 		
-		User benji = new User(1L, "benji", "benji@home", Location.SanFrancisco, GroupType.Regular);
-		User tiers = new User(2L, "tiers", "tiers@home", Location.LosAngeles, GroupType.Regular);
-		User lee = new User(3L, "lee", "lee@fairfax", Location.SanFrancisco, GroupType.Regular);
-		User jelena = new User(4L, "jelena", "jelena@dc", Location.SanFrancisco, GroupType.Regular);
-		User byrd = new User(5L, "byrd", "byrd@dc", Location.SanFrancisco, GroupType.Regular);
+		long id = 0;
 		
-		User berta = new User(6L, "berta", "berta@fairfax", Location.NewYork, GroupType.Regular);
-		User ash = new User(7L, "ash", "ash@ashburn", Location.NewYork, GroupType.Regular);
-		User sam = new User(8L, "sam", "sam@donutshop", Location.NewYork, GroupType.Regular);
+		User benji = new User(++id, "benji", "benji@home", Location.SanFrancisco, GroupType.Regular);
+		User tiers = new User(++id, "tiers", "tiers@home", Location.SanFrancisco, GroupType.Regular);
+		User lee = new User(++id, "lee", "lee@fairfax", Location.SanFrancisco, GroupType.Regular);
+		User jelena = new User(++id, "jelena", "jelena@dc", Location.SanFrancisco, GroupType.Regular);
+		User byrd = new User(++id, "byrd", "byrd@dc", Location.SanFrancisco, GroupType.Regular);
+		User tom = new User(++id, "tom", "tom@donutshop", Location.SanFrancisco, GroupType.Regular);
 		
-		User jeffrey = new User(9L, "jeffrey", "jeffrey@dc", Location.LosAngeles, GroupType.Regular);
-		User tim = new User(10L, "tim", "tim@dc", Location.LosAngeles, GroupType.Regular);
+		User berta = new User(++id, "berta", "berta@fairfax", Location.NewYork, GroupType.Regular);
+		User ash = new User(++id, "ash", "ash@ashburn", Location.NewYork, GroupType.Regular);
+		User sam = new User(++id, "sam", "sam@donutshop", Location.NewYork, GroupType.Regular);
+		User jerry = new User(++id, "jerry", "jerry@donutshop", Location.NewYork, GroupType.Regular);
+		User richard = new User(++id, "richard", "richard@donutshop", Location.NewYork, GroupType.Regular);
+		User pat = new User(++id, "pat", "pat@donutshop", Location.NewYork, GroupType.Regular);
+		User alfred = new User(++id, "alfred", "alfred@donutshop", Location.NewYork, GroupType.Regular);
 		
-		List<User> sanfranciscans = CollectionUtil.asList(benji, tiers, lee, jelena, byrd);
-		List<User> yankees = CollectionUtil.asList(berta, ash, sam);
+		User jeffrey = new User(++id, "jeffrey", "jeffrey@dc", Location.LosAngeles, GroupType.Regular);
+		User tim = new User(++id, "tim", "tim@dc", Location.LosAngeles, GroupType.Regular);
+		
+		List<User> sanfranciscans = CollectionUtil.asList(benji, tiers, lee, jelena, byrd, tom);
+		List<User> yankees = CollectionUtil.asList(berta, ash, sam, jerry, richard, pat, alfred);
 		List<User> angels = CollectionUtil.asList(jeffrey, tim);
 		
 		Mockito.when(userDao.getActiveUsersByLocationAndGroupType(Location.SanFrancisco, GroupType.Regular)).thenReturn(sanfranciscans);
 		Mockito.when(userDao.getActiveUsersByLocationAndGroupType(Location.NewYork, GroupType.Regular)).thenReturn(yankees);
 		Mockito.when(userDao.getActiveUsersByLocationAndGroupType(Location.LosAngeles, GroupType.Regular)).thenReturn(angels);
 		
-		lunchService.generateLunchGroups(GroupType.Regular, true);
+		lunchService.generateLunchGroups(GroupType.Regular, Location.values(), true);
 		
-		Mockito.verify(lunchGroupDao, Mockito.times(3)).persistLunchGroups(Mockito.anyList());
-		Mockito.verify(mockMailService, Mockito.times(10)).send(Mockito.any(Message.class));
+		int numUsers = sanfranciscans.size() + yankees.size();
+		
+		Mockito.verify(lunchGroupDao, Mockito.times(2)).persistLunchGroups(Mockito.anyList());
+		Mockito.verify(mockMailService, Mockito.times(numUsers)).send(Mockito.any(Message.class));
 	}
 
 }
