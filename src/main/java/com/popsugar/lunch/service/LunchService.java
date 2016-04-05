@@ -82,7 +82,7 @@ public class LunchService {
 				}
 			}
 			else {
-				log.log(Level.INFO, "{} only has enough people for one {} lunch group so it will be skipped", 
+				log.log(Level.INFO, "{0} only has enough people for one {1} lunch group so it will be skipped", 
 					new Object[]{location, groupType});
 			}
 		}
