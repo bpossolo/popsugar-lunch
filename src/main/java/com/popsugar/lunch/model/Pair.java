@@ -42,15 +42,21 @@ public class Pair {
 		Set<User> processed = new HashSet<>();
 		for (User user : users) {
 			if (!processed.contains(user)) {
-				User buddy = map.get(user.getBuddyKey());
-				if (buddy == null) {
-					log.log(Level.WARNING, "{0} [{1}] does not have a buddy because {2} is inactive", 
-						new Object[]{user.getName(), user.getKey().toString(), user.getBuddyKey().toString()});
+				Long buddyKey = user.getBuddyKey();
+				if (buddyKey == null) {
+					log.log(Level.WARNING, "{0} [{1}] does not have a buddy", new Object[]{user.getName(), user.getKey().toString()});
 				}
 				else {
-					Pair pair = new Pair(user, buddy);
-					pairs.add(pair);
-					processed.add(buddy);
+					User buddy = map.get(buddyKey);
+					if (buddy == null) {
+						log.log(Level.WARNING, "{0} [{1}] does not have a buddy because {2} is inactive", 
+							new Object[]{user.getName(), user.getKey().toString(), user.getBuddyKey().toString()});
+					}
+					else {
+						Pair pair = new Pair(user, buddy);
+						pairs.add(pair);
+						processed.add(buddy);
+					}
 				}
 				processed.add(user);
 			}
