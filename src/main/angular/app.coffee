@@ -26,7 +26,7 @@ angular.module('app', ['ui.router']).config(['$injector', ($injector) ->
     controller: 'ManagePalsCtrl'
   .state 'unsubscribe',
     url: '/unsubscribe/{userId}'
-    templateUrl: '/view/unsubscribe/unsubscribe.html'
+    templateUrl: '/views/unsubscribe/unsubscribe.html'
     controller: 'UnsubscribeCtrl'
 
   return
