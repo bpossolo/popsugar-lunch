@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
+	<!--
 	<cron>
 		<url>/api/lunch/generate-groups?email=true</url>
 		<description>Generate lunch groups</description>
 		<schedule>first monday 14:00</schedule>
 		<timezone>America/Los_Angeles</timezone>
 	</cron>
+	-->
 </cronentries>
