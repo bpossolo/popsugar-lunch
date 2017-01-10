@@ -1,0 +1,10 @@
+Glen Griffen IT person who setup ping board
+
+
+once a month
+input pairs of people (buddy and new hire)
+randomly assign two pairs together
+integrate with pingboard to show photos
+logo
+a buddy only has at max one new hire
+unsubscribe via email
