@@ -145,7 +145,7 @@ public class PingboardService {
 				String url = BaseUrl + "/oauth/token";
 				url = UrlUtil.addParam(url, "grant_type", "password");
 				url = UrlUtil.addParam(url, "username", "bpossolo@popsugar.com");
-				url = UrlUtil.addParam(url, "password", "lunchforfour");
+				url = UrlUtil.addParam(url, "password", "TODO");
 				
 				HTTPRequest request = new HTTPRequest(new URL(url), HTTPMethod.POST);
 				request.getFetchOptions().setDeadline(10.0);
